@@ -32,6 +32,13 @@ macro_rules! choice {
     };
 }
 
+#[macro_export]
+macro_rules! seq {
+    ($($element:expr),+ $(,)?) => {
+        Element::Sequence(vec![$($element,)+])
+    };
+}
+
 pub struct Volt {
     // todo: Optimize process speed of HashMap.
     rule_map: HashMap<RuleId, Element>,

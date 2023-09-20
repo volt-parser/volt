@@ -61,6 +61,31 @@ speculate!{
         expect_failure("c", "TestModule::choice", ParserError::NoMatchedRule);
     }
 
+    /* Sequence Element */
+
+    it "sequence consumes characters as much its children 1" {
+        expect_failure("a", "TestModule::sequence", ParserError::NoMatchedRule);
+    }
+
+    it "sequence consumes characters as much its children 2" {
+        expect_failure("abc", "TestModule::sequence", ParserError::NoMatchedRule);
+    }
+
+    it "sequence matches completely same input 1" {
+        expect_success("ab", "TestModule::sequence", tree!{
+            node!{
+                "TestModule::sequence" => vec![
+                    leaf!("a"),
+                    leaf!("b"),
+                ]
+            }
+        });
+    }
+
+    it "sequence matches completely same input 2" {
+        expect_failure("ac", "TestModule::sequence", ParserError::NoMatchedRule);
+    }
+
     /* String Expression */
 
     it "string consumes characters as much its length 1" {
@@ -126,6 +151,7 @@ speculate!{
 struct TestModule {
     // left_recursion: Element,
     choice: Element,
+    sequence: Element,
     string: Element,
     multibyte_string: Element,
     wildcard: Element,
@@ -136,6 +162,7 @@ impl Module for TestModule {
         add_rules!{
             // left_recursion := TestModule::left_recursion();
             choice := choice![str("a"), str("b")];
+            sequence := seq![str("a"), str("b")];
             string := str("ab");
             multibyte_string := str("あい");
             wildcard := wildcard();

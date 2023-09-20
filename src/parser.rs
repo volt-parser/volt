@@ -70,6 +70,7 @@ impl<'a> Parser<'a> {
     pub(crate) fn element(&mut self, elem: &Element) -> OptionalParserResult<Vec<SyntaxChild>> {
         let children = match elem {
             Element::Choice(elems) => self.choice(elems)?,
+            Element::Sequence(elems) => self.sequence(elems)?,
             Element::Expression(expr) => match expr {
                 Expression::Rule(id) => if let Some(child_node) = self.rule(id)? { Some(vec![SyntaxChild::Node(child_node)]) } else { None },
                 Expression::String(s) => self.string(s)?,
@@ -93,6 +94,23 @@ impl<'a> Parser<'a> {
         }
 
         Ok(None)
+    }
+
+    pub (crate) fn sequence(&mut self, elems: &Vec<Element>) -> OptionalParserResult<Vec<SyntaxChild>> {
+        let tmp_index = self.index;
+        let mut children = Vec::new();
+
+        for each_elem in elems {
+            match self.element(each_elem)? {
+                Some(mut new_children) => children.append(&mut new_children),
+                None => {
+                    self.index = tmp_index;
+                    return Ok(None);
+                },
+            }
+        }
+
+        Ok(Some(children))
     }
 
     pub(crate) fn string(&mut self, s: &str) -> OptionalParserResult<Vec<SyntaxChild>> {
