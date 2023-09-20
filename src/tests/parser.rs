@@ -27,6 +27,72 @@ speculate!{
     //     expect_failure("", "TestModule::left_recursion", ParserError::ExceededMaxRecursion);
     // }
 
+    /* Choice Element */
+
+    it "choice consumes characters as much its children 1" {
+        expect_failure("", "TestModule::choice", ParserError::NoMatchedRule);
+    }
+
+    it "choice consumes characters as much its children 2" {
+        expect_failure("ab", "TestModule::choice", ParserError::NoMatchedRule);
+    }
+
+    it "choices first choice when match" {
+        expect_success("a", "TestModule::choice", tree!{
+            node!{
+                "TestModule::choice" => vec![
+                    leaf!("a"),
+                ]
+            }
+        });
+    }
+
+    it "choices the next choice when first choice doesn't match" {
+        expect_success("b", "TestModule::choice", tree!{
+            node!{
+                "TestModule::choice" => vec![
+                    leaf!("b"),
+                ]
+            }
+        });
+    }
+
+    it "choice doesn't match element not exist in children" {
+        expect_failure("c", "TestModule::choice", ParserError::NoMatchedRule);
+    }
+
+    /* String Expression */
+
+    it "string consumes characters as much its length 1" {
+        expect_failure("a", "TestModule::string", ParserError::NoMatchedRule);
+    }
+
+    it "string consumes characters as much its length 2" {
+        expect_failure("abc", "TestModule::string", ParserError::NoMatchedRule);
+    }
+
+    it "string generates single leaf" {
+        expect_success("ab", "TestModule::string", tree!{
+            node!{
+                "TestModule::string" => vec![
+                    leaf!("ab"),
+                ]
+            }
+        });
+    }
+
+    it "string supports multibyte characters" {
+        expect_success("あい", "TestModule::multibyte_string", tree!{
+            node!{
+                "TestModule::multibyte_string" => vec![
+                    leaf!("あい"),
+                ]
+            }
+        });
+    }
+
+    /* Wildcard Expression */
+
     it "wildcard consumes single character 1" {
         expect_failure("", "TestModule::wildcard", ParserError::NoMatchedRule);
     }
@@ -59,6 +125,9 @@ speculate!{
 #[derive(RuleContainer)]
 struct TestModule {
     // left_recursion: Element,
+    choice: Element,
+    string: Element,
+    multibyte_string: Element,
     wildcard: Element,
 }
 
@@ -66,6 +135,9 @@ impl Module for TestModule {
     fn new() -> TestModule {
         add_rules!{
             // left_recursion := TestModule::left_recursion();
+            choice := choice![str("a"), str("b")];
+            string := str("ab");
+            multibyte_string := str("あい");
             wildcard := wildcard();
         }
     }

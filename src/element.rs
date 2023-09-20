@@ -43,6 +43,7 @@ impl Display for Element {
 #[derive(Clone)]
 pub enum Expression {
     Rule(RuleId),
+    String(String),
     Wildcard,
 }
 
@@ -50,6 +51,7 @@ impl Display for Expression {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let s = match self {
             Expression::Rule(id) => id.to_string(),
+            Expression::String(value) => format!("\"{}\"", value),
             Expression::Wildcard => "_".to_string(),
         };
 
@@ -74,6 +76,14 @@ impl Display for LoopRange {
 
         write!(f, "{}", s)
     }
+}
+
+pub fn str(s: &str) -> Element {
+    if s.len() == 0 {
+        panic!("Empty string is not allowed.");
+    }
+
+    Element::Expression(Expression::String(s.to_string()))
 }
 
 pub fn wildcard() -> Element {

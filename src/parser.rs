@@ -69,14 +69,39 @@ impl<'a> Parser<'a> {
 
     pub(crate) fn element(&mut self, elem: &Element) -> OptionalParserResult<Vec<SyntaxChild>> {
         let children = match elem {
+            Element::Choice(elems) => self.choice(elems)?,
             Element::Expression(expr) => match expr {
                 Expression::Rule(id) => if let Some(child_node) = self.rule(id)? { Some(vec![SyntaxChild::Node(child_node)]) } else { None },
+                Expression::String(s) => self.string(s)?,
                 Expression::Wildcard => self.wildcard()?,
             },
             _ => unimplemented!(),
         };
 
         Ok(children)
+    }
+
+    pub (crate) fn choice(&mut self, elems: &Vec<Element>) -> OptionalParserResult<Vec<SyntaxChild>> {
+        let tmp_index = self.index;
+
+        for each_elem in elems {
+            if let Some(children) = self.element(each_elem)? {
+                return Ok(Some(children));
+            } else {
+                self.index = tmp_index;
+            }
+        }
+
+        Ok(None)
+    }
+
+    pub(crate) fn string(&mut self, s: &str) -> OptionalParserResult<Vec<SyntaxChild>> {
+        if self.input.count() >= self.index + s.count() && self.input.slice(self.index, s.count()) == *s {
+            self.index += s.count();
+            Ok(Some(vec![SyntaxChild::leaf(s.to_string())]))
+        } else {
+            Ok(None)
+        }
     }
 
     pub(crate) fn wildcard(&mut self) -> OptionalParserResult<Vec<SyntaxChild>> {
