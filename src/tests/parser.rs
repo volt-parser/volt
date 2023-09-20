@@ -8,7 +8,7 @@ use {
 
 speculate!{
     before {
-        let volt = &mut Volt::new(HashMap::new(), 1024);
+        let volt = &mut Volt::new();
         volt.add_module(TestModule::new());
 
         let assert_ast = |input: &str, rule_id: &str, expected: ParserResult|

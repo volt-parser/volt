@@ -39,10 +39,10 @@ pub struct Volt {
 }
 
 impl Volt {
-    pub fn new(rule_map: HashMap<RuleId, Element>, max_recursion: usize) -> Volt {
+    pub fn new() -> Volt {
         Volt {
-            rule_map,
-            max_recursion,
+            rule_map: HashMap::new(),
+            max_recursion: 1024,
         }
     }
 
@@ -58,6 +58,10 @@ impl Volt {
 
             self.rule_map.insert(id, each_rule.element);
         }
+    }
+
+    pub fn set_max_recursion(&mut self, max_recursion: usize) {
+        self.max_recursion = max_recursion;
     }
 
     pub fn parse(&self, input: &str, entry_rule_id: &RuleId) -> ParserResult {
