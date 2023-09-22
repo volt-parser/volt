@@ -51,7 +51,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub(crate) fn rule(&mut self, rule_id: &RuleId) -> OptionalParserResult<SyntaxNode> {
+    fn rule(&mut self, rule_id: &RuleId) -> OptionalParserResult<SyntaxNode> {
         if self.recursion >= self.volt.max_recursion {
             return Err(ParserError::ExceededMaxRecursion);
         }
@@ -67,7 +67,7 @@ impl<'a> Parser<'a> {
         result
     }
 
-    pub(crate) fn element(&mut self, elem: &Element) -> OptionalParserResult<Vec<SyntaxChild>> {
+    fn element(&mut self, elem: &Element) -> OptionalParserResult<Vec<SyntaxChild>> {
         let children = match elem {
             Element::Choice(elems) => self.choice(elems)?,
             Element::Sequence(elems) => self.sequence(elems)?,
@@ -84,7 +84,7 @@ impl<'a> Parser<'a> {
         Ok(children)
     }
 
-    pub (crate) fn choice(&mut self, elems: &Vec<Element>) -> OptionalParserResult<Vec<SyntaxChild>> {
+    fn choice(&mut self, elems: &Vec<Element>) -> OptionalParserResult<Vec<SyntaxChild>> {
         let tmp_index = self.index;
 
         for each_elem in elems {
@@ -98,7 +98,7 @@ impl<'a> Parser<'a> {
         Ok(None)
     }
 
-    pub (crate) fn sequence(&mut self, elems: &Vec<Element>) -> OptionalParserResult<Vec<SyntaxChild>> {
+    fn sequence(&mut self, elems: &Vec<Element>) -> OptionalParserResult<Vec<SyntaxChild>> {
         let tmp_index = self.index;
         let mut children = Vec::new();
 
@@ -185,7 +185,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub(crate) fn string(&mut self, s: &str) -> OptionalParserResult<Vec<SyntaxChild>> {
+    fn string(&mut self, s: &str) -> OptionalParserResult<Vec<SyntaxChild>> {
         if self.input.count() >= self.index + s.count() && self.input.slice(self.index, s.count()) == *s {
             self.index += s.count();
             Ok(Some(vec![SyntaxChild::leaf(s.to_string())]))
@@ -194,7 +194,7 @@ impl<'a> Parser<'a> {
         }
     }
 
-    pub(crate) fn wildcard(&mut self) -> OptionalParserResult<Vec<SyntaxChild>> {
+    fn wildcard(&mut self) -> OptionalParserResult<Vec<SyntaxChild>> {
         if self.input.count() >= self.index + 1 {
             let s = self.input.slice(self.index, 1);
             self.index += 1;
