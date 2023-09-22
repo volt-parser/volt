@@ -27,195 +27,197 @@ speculate!{
     //     expect_failure("", "TestModule::left_recursion", ParserError::ExceededMaxRecursion);
     // }
 
-    /* Choice Element */
+    describe "choice element" {
+        it "choice consumes characters as much its children 1" {
+            expect_failure("", "TestModule::choice", ParserError::NoMatchedRule);
+        }
 
-    it "choice consumes characters as much its children 1" {
-        expect_failure("", "TestModule::choice", ParserError::NoMatchedRule);
+        it "choice consumes characters as much its children 2" {
+            expect_failure("ab", "TestModule::choice", ParserError::NoMatchedRule);
+        }
+
+        it "choices first choice when match" {
+            expect_success("a", "TestModule::choice", tree!{
+                node!{
+                    "TestModule::choice" => vec![
+                        leaf!("a"),
+                    ]
+                }
+            });
+        }
+
+        it "choices the next choice when first choice doesn't match" {
+            expect_success("b", "TestModule::choice", tree!{
+                node!{
+                    "TestModule::choice" => vec![
+                        leaf!("b"),
+                    ]
+                }
+            });
+        }
+
+        it "choice doesn't match element not exist in children" {
+            expect_failure("c", "TestModule::choice", ParserError::NoMatchedRule);
+        }
     }
 
-    it "choice consumes characters as much its children 2" {
-        expect_failure("ab", "TestModule::choice", ParserError::NoMatchedRule);
+    describe "sequence element" {
+        it "sequence consumes characters as much its children 1" {
+            expect_failure("a", "TestModule::sequence", ParserError::NoMatchedRule);
+        }
+
+        it "sequence consumes characters as much its children 2" {
+            expect_failure("abc", "TestModule::sequence", ParserError::NoMatchedRule);
+        }
+
+        it "sequence matches completely same input 1" {
+            expect_success("ab", "TestModule::sequence", tree!{
+                node!{
+                    "TestModule::sequence" => vec![
+                        leaf!("a"),
+                        leaf!("b"),
+                    ]
+                }
+            });
+        }
+
+        it "sequence matches completely same input 2" {
+            expect_failure("ac", "TestModule::sequence", ParserError::NoMatchedRule);
+        }
     }
 
-    it "choices first choice when match" {
-        expect_success("a", "TestModule::choice", tree!{
-            node!{
-                "TestModule::choice" => vec![
-                    leaf!("a"),
-                ]
+    describe "loop element" {
+        describe "n times" {
+            it "repeats for the number of times in the specified range 1-1" {
+                expect_failure("a", "TestModule::loop_range1", ParserError::NoMatchedRule);
             }
-        });
-    }
 
-    it "choices the next choice when first choice doesn't match" {
-        expect_success("b", "TestModule::choice", tree!{
-            node!{
-                "TestModule::choice" => vec![
-                    leaf!("b"),
-                ]
+            it "repeats for the number of times in the specified range 1-2" {
+                expect_success("aa", "TestModule::loop_range1", tree!{
+                    node!{
+                        "TestModule::loop_range1" => vec![
+                            leaf!("a"),
+                            leaf!("a"),
+                        ]
+                    }
+                });
             }
-        });
-    }
 
-    it "choice doesn't match element not exist in children" {
-        expect_failure("c", "TestModule::choice", ParserError::NoMatchedRule);
-    }
-
-    /* Sequence Element */
-
-    it "sequence consumes characters as much its children 1" {
-        expect_failure("a", "TestModule::sequence", ParserError::NoMatchedRule);
-    }
-
-    it "sequence consumes characters as much its children 2" {
-        expect_failure("abc", "TestModule::sequence", ParserError::NoMatchedRule);
-    }
-
-    it "sequence matches completely same input 1" {
-        expect_success("ab", "TestModule::sequence", tree!{
-            node!{
-                "TestModule::sequence" => vec![
-                    leaf!("a"),
-                    leaf!("b"),
-                ]
+            it "repeats for the number of times in the specified range 1-3" {
+                expect_failure("aaa", "TestModule::loop_range1", ParserError::NoMatchedRule);
             }
-        });
-    }
+        }
 
-    it "sequence matches completely same input 2" {
-        expect_failure("ac", "TestModule::sequence", ParserError::NoMatchedRule);
-    }
-
-    /* Loop Range | times(2) */
-
-    it "repeats for the number of times in the specified range 1-1" {
-        expect_failure("a", "TestModule::loop_range1", ParserError::NoMatchedRule);
-    }
-
-    it "repeats for the number of times in the specified range 1-2" {
-        expect_success("aa", "TestModule::loop_range1", tree!{
-            node!{
-                "TestModule::loop_range1" => vec![
-                    leaf!("a"),
-                    leaf!("a"),
-                ]
+        describe "min" {
+            it "repeats for the number of times in the specified range 2-1" {
+                expect_failure("", "TestModule::loop_range2", ParserError::NoMatchedRule);
             }
-        });
-    }
 
-    it "repeats for the number of times in the specified range 1-3" {
-        expect_failure("aaa", "TestModule::loop_range1", ParserError::NoMatchedRule);
-    }
-
-    /* Loop Range | min(1) */
-
-    it "repeats for the number of times in the specified range 2-1" {
-        expect_failure("", "TestModule::loop_range2", ParserError::NoMatchedRule);
-    }
-
-    it "repeats for the number of times in the specified range 2-2" {
-        expect_success("a", "TestModule::loop_range2", tree!{
-            node!{
-                "TestModule::loop_range2" => vec![
-                    leaf!("a"),
-                ]
+            it "repeats for the number of times in the specified range 2-2" {
+                expect_success("a", "TestModule::loop_range2", tree!{
+                    node!{
+                        "TestModule::loop_range2" => vec![
+                            leaf!("a"),
+                        ]
+                    }
+                });
             }
-        });
-    }
 
-    it "repeats for the number of times in the specified range 2-3" {
-        expect_success("aa", "TestModule::loop_range2", tree!{
-            node!{
-                "TestModule::loop_range2" => vec![
-                    leaf!("a"),
-                    leaf!("a"),
-                ]
+            it "repeats for the number of times in the specified range 2-3" {
+                expect_success("aa", "TestModule::loop_range2", tree!{
+                    node!{
+                        "TestModule::loop_range2" => vec![
+                            leaf!("a"),
+                            leaf!("a"),
+                        ]
+                    }
+                });
             }
-        });
-    }
+        }
 
-    /* Loop Range | max(1) */
-
-    it "repeats for the number of times in the specified range 3-1" {
-        expect_success("", "TestModule::loop_range3", tree!{
-            node!{
-                "TestModule::loop_range3" => vec![]
+        describe "max" {
+            it "repeats for the number of times in the specified range 3-1" {
+                expect_success("", "TestModule::loop_range3", tree!{
+                    node!{
+                        "TestModule::loop_range3" => vec![]
+                    }
+                });
             }
-        });
-    }
 
-    it "repeats for the number of times in the specified range 3-2" {
-        expect_success("a", "TestModule::loop_range3", tree!{
-            node!{
-                "TestModule::loop_range3" => vec![
-                    leaf!("a"),
-                ]
+            it "repeats for the number of times in the specified range 3-2" {
+                expect_success("a", "TestModule::loop_range3", tree!{
+                    node!{
+                        "TestModule::loop_range3" => vec![
+                            leaf!("a"),
+                        ]
+                    }
+                });
             }
-        });
-    }
 
-    it "repeats for the number of times in the specified range 3-3" {
-        expect_failure("aa", "TestModule::loop_range3", ParserError::NoMatchedRule);
-    }
-
-    /* String Expression */
-
-    it "string consumes characters as much its length 1" {
-        expect_failure("a", "TestModule::string", ParserError::NoMatchedRule);
-    }
-
-    it "string consumes characters as much its length 2" {
-        expect_failure("abc", "TestModule::string", ParserError::NoMatchedRule);
-    }
-
-    it "string generates single leaf" {
-        expect_success("ab", "TestModule::string", tree!{
-            node!{
-                "TestModule::string" => vec![
-                    leaf!("ab"),
-                ]
+            it "repeats for the number of times in the specified range 3-3" {
+                expect_failure("aa", "TestModule::loop_range3", ParserError::NoMatchedRule);
             }
-        });
+        }
     }
 
-    it "string supports multibyte characters" {
-        expect_success("あい", "TestModule::multibyte_string", tree!{
-            node!{
-                "TestModule::multibyte_string" => vec![
-                    leaf!("あい"),
-                ]
-            }
-        });
+    describe "string expression" {
+        it "string consumes characters as much its length 1" {
+            expect_failure("a", "TestModule::string", ParserError::NoMatchedRule);
+        }
+
+        it "string consumes characters as much its length 2" {
+            expect_failure("abc", "TestModule::string", ParserError::NoMatchedRule);
+        }
+
+        it "string generates single leaf" {
+            expect_success("ab", "TestModule::string", tree!{
+                node!{
+                    "TestModule::string" => vec![
+                        leaf!("ab"),
+                    ]
+                }
+            });
+        }
+
+        it "string supports multibyte characters" {
+            expect_success("あい", "TestModule::multibyte_string", tree!{
+                node!{
+                    "TestModule::multibyte_string" => vec![
+                        leaf!("あい"),
+                    ]
+                }
+            });
+        }
     }
 
-    /* Wildcard Expression */
+    describe "wildcard expression" {
+        it "wildcard consumes single character 1" {
+            expect_failure("", "TestModule::wildcard", ParserError::NoMatchedRule);
+        }
 
-    it "wildcard consumes single character 1" {
-        expect_failure("", "TestModule::wildcard", ParserError::NoMatchedRule);
-    }
+        it "wildcard consumes single character 2" {
+            expect_failure("aa", "TestModule::wildcard", ParserError::NoMatchedRule);
+        }
 
-    it "wildcard consumes single character 2" {
-        expect_failure("aa", "TestModule::wildcard", ParserError::NoMatchedRule);
-    }
+        it "wildcard generates single leaf" {
+            expect_success("a", "TestModule::wildcard", tree!{
+                node!{
+                    "TestModule::wildcard" => vec![
+                        leaf!("a"),
+                    ]
+                }
+            });
+        }
 
-    it "wildcard generates single leaf" {
-        expect_success("a", "TestModule::wildcard", tree!{
-            node!{
-                "TestModule::wildcard" => vec![
-                    leaf!("a"),
-                ]
-            }
-        });
-    }
-
-    it "wildcard treats single multibyte character as a character" {
-        expect_success("あ", "TestModule::wildcard", tree!{
-            node!{
-                "TestModule::wildcard" => vec![
-                    leaf!("あ"),
-                ]
-            }
-        });
+        it "wildcard treats single multibyte character as a character" {
+            expect_success("あ", "TestModule::wildcard", tree!{
+                node!{
+                    "TestModule::wildcard" => vec![
+                        leaf!("あ"),
+                    ]
+                }
+            });
+        }
     }
 }
 
