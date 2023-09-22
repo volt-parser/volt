@@ -76,7 +76,7 @@ impl<'a> Parser<'a> {
                 Expression::String(s) => self.string(s)?,
                 Expression::Wildcard => self.wildcard()?,
             },
-            _ => unimplemented!(),
+            Element::Loop(elem, range) => self.times(elem, range)?,
         };
 
         Ok(children)
@@ -111,6 +111,52 @@ impl<'a> Parser<'a> {
         }
 
         Ok(Some(children))
+    }
+
+    fn times(&mut self, elem: &Element, range: &LoopRange) -> OptionalParserResult<Vec<SyntaxChild>> {
+        if range.is_single_times() {
+            self.element(elem)
+        } else {
+            let tmp_index = self.index;
+            let mut children = Vec::new();
+            let mut count = 0;
+
+            loop {
+                let mut new_children = match self.element(elem) {
+                    Ok(option) => match option {
+                        Some(new_children) => new_children,
+                        _ => break,
+                    },
+                    Err(e) => return Err(e),
+                };
+
+                match &range.max {
+                    Maxable::Max(max) => {
+                        if count <= *max {
+                            children.append(&mut new_children);
+                            count += 1;
+
+                            if count == *max {
+                                break;
+                            }
+                        } else {
+                            break;
+                        }
+                    },
+                    Maxable::NoLimit => {
+                        children.append(&mut new_children);
+                        count += 1;
+                    },
+                }
+            }
+
+            if count >= range.min {
+            Ok(Some(children))
+            } else {
+                self.index = tmp_index;
+                Ok(None)
+            }
+        }
     }
 
     pub(crate) fn string(&mut self, s: &str) -> OptionalParserResult<Vec<SyntaxChild>> {

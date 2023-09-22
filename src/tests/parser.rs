@@ -86,6 +86,78 @@ speculate!{
         expect_failure("ac", "TestModule::sequence", ParserError::NoMatchedRule);
     }
 
+    /* Loop Range | times(2) */
+
+    it "repeats for the number of times in the specified range 1-1" {
+        expect_failure("a", "TestModule::loop_range1", ParserError::NoMatchedRule);
+    }
+
+    it "repeats for the number of times in the specified range 1-2" {
+        expect_success("aa", "TestModule::loop_range1", tree!{
+            node!{
+                "TestModule::loop_range1" => vec![
+                    leaf!("a"),
+                    leaf!("a"),
+                ]
+            }
+        });
+    }
+
+    it "repeats for the number of times in the specified range 1-3" {
+        expect_failure("aaa", "TestModule::loop_range1", ParserError::NoMatchedRule);
+    }
+
+    /* Loop Range | min(1) */
+
+    it "repeats for the number of times in the specified range 2-1" {
+        expect_failure("", "TestModule::loop_range2", ParserError::NoMatchedRule);
+    }
+
+    it "repeats for the number of times in the specified range 2-2" {
+        expect_success("a", "TestModule::loop_range2", tree!{
+            node!{
+                "TestModule::loop_range2" => vec![
+                    leaf!("a"),
+                ]
+            }
+        });
+    }
+
+    it "repeats for the number of times in the specified range 2-3" {
+        expect_success("aa", "TestModule::loop_range2", tree!{
+            node!{
+                "TestModule::loop_range2" => vec![
+                    leaf!("a"),
+                    leaf!("a"),
+                ]
+            }
+        });
+    }
+
+    /* Loop Range | max(1) */
+
+    it "repeats for the number of times in the specified range 3-1" {
+        expect_success("", "TestModule::loop_range3", tree!{
+            node!{
+                "TestModule::loop_range3" => vec![]
+            }
+        });
+    }
+
+    it "repeats for the number of times in the specified range 3-2" {
+        expect_success("a", "TestModule::loop_range3", tree!{
+            node!{
+                "TestModule::loop_range3" => vec![
+                    leaf!("a"),
+                ]
+            }
+        });
+    }
+
+    it "repeats for the number of times in the specified range 3-3" {
+        expect_failure("aa", "TestModule::loop_range3", ParserError::NoMatchedRule);
+    }
+
     /* String Expression */
 
     it "string consumes characters as much its length 1" {
@@ -152,6 +224,9 @@ struct TestModule {
     // left_recursion: Element,
     choice: Element,
     sequence: Element,
+    loop_range1: Element,
+    loop_range2: Element,
+    loop_range3: Element,
     string: Element,
     multibyte_string: Element,
     wildcard: Element,
@@ -163,6 +238,9 @@ impl Module for TestModule {
             // left_recursion := TestModule::left_recursion();
             choice := choice![str("a"), str("b")];
             sequence := seq![str("a"), str("b")];
+            loop_range1 := seq![wildcard().times(2)];
+            loop_range2 := seq![wildcard().min(1)];
+            loop_range3 := seq![wildcard().max(1)];
             string := str("ab");
             multibyte_string := str("あい");
             wildcard := wildcard();

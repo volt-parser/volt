@@ -12,6 +12,42 @@ pub enum Element {
 }
 
 impl Element {
+    pub fn times(self, n: usize) -> Element {
+        let range = LoopRange {
+            min: n,
+            max: Maxable::Max(n),
+        };
+
+        Element::Loop(Box::new(self), range)
+    }
+
+    pub fn min_max(self, min: usize, max: usize) -> Element {
+        let range = LoopRange {
+            min: min,
+            max: Maxable::Max(max),
+        };
+
+        Element::Loop(Box::new(self), range)
+    }
+
+    pub fn min(self, min: usize) -> Element {
+        let range = LoopRange {
+            min: min,
+            max: Maxable::NoLimit,
+        };
+
+        Element::Loop(Box::new(self), range)
+    }
+
+    pub fn max(self, max: usize) -> Element {
+        let range = LoopRange {
+            min: 0,
+            max: Maxable::Max(max),
+        };
+
+        Element::Loop(Box::new(self), range)
+    }
+
     pub fn has_left_recursion(&self, rule_id: &RuleId) -> bool {
         match self {
             Element::Choice(elems) | Element::Sequence(elems) => match elems.get(0) {
@@ -59,22 +95,45 @@ impl Display for Expression {
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub enum Maxable {
+    Max(usize),
+    NoLimit,
+}
+
 #[derive(Clone)]
-pub enum LoopRange {
-    ZeroOrMore,
-    OneOrMore,
-    NToM(usize, usize),
+pub struct LoopRange {
+    pub min: usize,
+    pub max: Maxable,
 }
 
 impl Display for LoopRange {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        let s = match self {
-            LoopRange::ZeroOrMore => "*".to_string(),
-            LoopRange::OneOrMore => "+".to_string(),
-            LoopRange::NToM(n, m) => if *n == 0 && *m == 1 { "?".to_string() } else { format!("{{{},{}}}", n, m).to_string() },
+        match self.min {
+            0 => match &self.max {
+                Maxable::Max(v) if *v == 1 => return write!(f, "_"),
+                Maxable::NoLimit => return write!(f, "*"),
+                _ => (),
+            },
+            1 => match &self.max {
+                Maxable::NoLimit => return write!(f, "*"),
+                _ => (),
+            },
+            _ => (),
         };
 
-        write!(f, "{}", s)
+        let max = match &self.max {
+            Maxable::Max(v) => v.to_string(),
+            Maxable::NoLimit => String::new(),
+        };
+
+        write!(f, "{{{},{}}}", self.min, max)
+    }
+}
+
+impl LoopRange {
+    pub fn is_single_times(&self) -> bool {
+        self.min == 1 && self.max == Maxable::Max(1)
     }
 }
 
