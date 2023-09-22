@@ -9,6 +9,8 @@ pub enum Element {
     Choice(Vec<Element>),
     Sequence(Vec<Element>),
     Loop(Box<Element>, LoopRange),
+    PositiveLookahead(Box<Element>),
+    NegativeLookahead(Box<Element>),
 }
 
 impl Element {
@@ -48,6 +50,14 @@ impl Element {
         Element::Loop(Box::new(self), range)
     }
 
+    pub fn poslook(self) -> Element {
+        Element::PositiveLookahead(Box::new(self))
+    }
+
+    pub fn neglook(self) -> Element {
+        Element::NegativeLookahead(Box::new(self))
+    }
+
     pub fn has_left_recursion(&self, rule_id: &RuleId) -> bool {
         match self {
             Element::Choice(elems) | Element::Sequence(elems) => match elems.get(0) {
@@ -70,6 +80,8 @@ impl Display for Element {
             Element::Choice(elems) => format!("({})", elems.iter().map(|e| e.to_string()).collect::<Vec<String>>().join(" / ")),
             Element::Sequence(elems) => format!("({})", elems.iter().map(|e| e.to_string()).collect::<Vec<String>>().join(" ")),
             Element::Loop(elem, range) => format!("{}{}", elem, range),
+            Element::PositiveLookahead(elem) => format!("&{}", elem),
+            Element::NegativeLookahead(elem) => format!("!{}", elem),
         };
 
         write!(f, "{}", s)

@@ -160,6 +160,38 @@ speculate!{
         }
     }
 
+    describe "positive lookahead element" {
+        it "doesn't change input index 1" {
+            expect_success("a", "TestModule::poslook", tree!{
+                node!{
+                    "TestModule::poslook" => vec![
+                        leaf!("a"),
+                    ]
+                }
+            });
+        }
+
+        it "doesn't change input index 2" {
+            expect_failure("b", "TestModule::poslook", ParserError::NoMatchedRule);
+        }
+    }
+
+    describe "negative lookahead element" {
+        it "doesn't change input index 1" {
+            expect_failure("a", "TestModule::neglook", ParserError::NoMatchedRule);
+        }
+
+        it "doesn't change input index 2" {
+            expect_success("b", "TestModule::neglook", tree!{
+                node!{
+                    "TestModule::neglook" => vec![
+                        leaf!("b"),
+                    ]
+                }
+            });
+        }
+    }
+
     describe "string expression" {
         it "string consumes characters as much its length 1" {
             expect_failure("a", "TestModule::string", ParserError::NoMatchedRule);
@@ -229,6 +261,8 @@ struct TestModule {
     loop_range1: Element,
     loop_range2: Element,
     loop_range3: Element,
+    poslook: Element,
+    neglook: Element,
     string: Element,
     multibyte_string: Element,
     wildcard: Element,
@@ -243,6 +277,8 @@ impl Module for TestModule {
             loop_range1 := seq![wildcard().times(2)];
             loop_range2 := seq![wildcard().min(1)];
             loop_range3 := seq![wildcard().max(1)];
+            poslook := seq![str("a").poslook(), wildcard()];
+            neglook := seq![str("a").neglook(), wildcard()];
             string := str("ab");
             multibyte_string := str("あい");
             wildcard := wildcard();

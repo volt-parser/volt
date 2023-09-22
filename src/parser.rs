@@ -77,6 +77,8 @@ impl<'a> Parser<'a> {
                 Expression::Wildcard => self.wildcard()?,
             },
             Element::Loop(elem, range) => self.times(elem, range)?,
+            Element::PositiveLookahead(elem) => self.lookahead(elem, true)?,
+            Element::NegativeLookahead(elem) => self.lookahead(elem, false)?,
         };
 
         Ok(children)
@@ -151,11 +153,35 @@ impl<'a> Parser<'a> {
             }
 
             if count >= range.min {
-            Ok(Some(children))
+                Ok(Some(children))
             } else {
                 self.index = tmp_index;
                 Ok(None)
             }
+        }
+    }
+
+    fn lookahead(&mut self, elem: &Element, is_positive: bool) -> OptionalParserResult<Vec<SyntaxChild>> {
+        let tmp_index = self.index;
+        let result = self.element(elem);
+
+        match result {
+            Ok(option) => {
+                self.index = tmp_index;
+
+                let has_succeeded = if is_positive {
+                    option.is_some()
+                } else {
+                    option.is_none()
+                };
+
+                if has_succeeded {
+                    Ok(Some(Vec::new()))
+                } else {
+                    Ok(None)
+                }
+            },
+            Err(e) => Err(e),
         }
     }
 
