@@ -1,6 +1,9 @@
-use crate::{
-    *,
-    tree::*,
+use {
+    regex::Regex,
+    crate::{
+        *,
+        tree::*,
+    }
 };
 
 trait ParserInput {
@@ -74,6 +77,7 @@ impl<'a> Parser<'a> {
             Element::Expression(expr) => match expr {
                 Expression::Rule(id) => if let Some(child_node) = self.rule(id)? { Some(vec![SyntaxChild::Node(child_node)]) } else { None },
                 Expression::String(s) => self.string(s)?,
+                Expression::CharacterClass(v) => self.character_class(v)?,
                 Expression::Wildcard => self.wildcard()?,
             },
             Element::Loop(elem, range) => self.times(elem, range)?,
@@ -189,6 +193,23 @@ impl<'a> Parser<'a> {
         if self.input.count() >= self.index + s.count() && self.input.slice(self.index, s.count()) == *s {
             self.index += s.count();
             Ok(Some(vec![SyntaxChild::leaf(s.to_string())]))
+        } else {
+            Ok(None)
+        }
+    }
+
+    fn character_class(&mut self, regex: &Regex) -> OptionalParserResult<Vec<SyntaxChild>> {
+        if self.input.count() >= self.index + 1 {
+            // todo: optimization
+            let target = self.input.slice(self.index, 1);
+
+            match regex.find(&target) {
+                Some(regex_match) if regex_match.start() == 0 => {
+                    self.index += 1;
+                    Ok(Some(vec![SyntaxChild::leaf(target)]))
+                },
+                _ => Ok(None),
+            }
         } else {
             Ok(None)
         }

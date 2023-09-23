@@ -1,5 +1,6 @@
 use {
     std::fmt::{self, Display, Formatter},
+    regex::Regex,
     crate::rule::RuleId,
 };
 
@@ -92,6 +93,7 @@ impl Display for Element {
 pub enum Expression {
     Rule(RuleId),
     String(String),
+    CharacterClass(Regex),
     Wildcard,
 }
 
@@ -99,7 +101,8 @@ impl Display for Expression {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         let s = match self {
             Expression::Rule(id) => id.to_string(),
-            Expression::String(value) => format!("\"{}\"", value),
+            Expression::String(v) => format!("\"{}\"", v),
+            Expression::CharacterClass(v) => format!("{}", v),
             Expression::Wildcard => "_".to_string(),
         };
 
@@ -155,6 +158,19 @@ pub fn str(s: &str) -> Element {
     }
 
     Element::Expression(Expression::String(s.to_string()))
+}
+
+pub fn chars(s: &str) -> Element {
+    // todo: check pattern
+    let patt = format!("[{}]", s.replace("[", "\\[").replace("]", "\\]"));
+
+    let regex = if let Ok(v) = Regex::new(&patt) {
+        v
+    } else {
+        panic!("invalid regex pattern");
+    };
+
+    Element::Expression(Expression::CharacterClass(regex))
 }
 
 pub fn wildcard() -> Element {

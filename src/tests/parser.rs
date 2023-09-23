@@ -222,6 +222,56 @@ speculate!{
         }
     }
 
+    describe "character class expression" {
+        it "matches a specified character 1" {
+            expect_success("a", "TestModule::character_class1", tree!{
+                node!{
+                    "TestModule::character_class1" => vec![
+                        leaf!("a"),
+                    ]
+                }
+            });
+        }
+
+        it "matches a specified character 2" {
+            expect_success("b", "TestModule::character_class1", tree!{
+                node!{
+                    "TestModule::character_class1" => vec![
+                        leaf!("b"),
+                    ]
+                }
+            });
+        }
+
+        it "matches a specified character 3" {
+            expect_failure("c", "TestModule::character_class1", ParserError::NoMatchedRule);
+        }
+
+        it "consumes only one character" {
+            expect_failure("aa", "TestModule::character_class1", ParserError::NoMatchedRule);
+        }
+
+        it "supports number specification" {
+            expect_success("0", "TestModule::character_class2", tree!{
+                node!{
+                    "TestModule::character_class2" => vec![
+                        leaf!("0"),
+                    ]
+                }
+            });
+        }
+
+        it "supports regex pattern enclosure" {
+            expect_success("[", "TestModule::character_class3", tree!{
+                node!{
+                    "TestModule::character_class3" => vec![
+                        leaf!("["),
+                    ]
+                }
+            });
+        }
+    }
+
     describe "wildcard expression" {
         it "wildcard consumes single character 1" {
             expect_failure("", "TestModule::wildcard", ParserError::NoMatchedRule);
@@ -265,6 +315,9 @@ struct TestModule {
     neglook: Element,
     string: Element,
     multibyte_string: Element,
+    character_class1: Element,
+    character_class2: Element,
+    character_class3: Element,
     wildcard: Element,
 }
 
@@ -281,6 +334,9 @@ impl Module for TestModule {
             neglook := seq![str("a").neglook(), wildcard()];
             string := str("ab");
             multibyte_string := str("あい");
+            character_class1 := chars("ab");
+            character_class2 := chars(r"\d");
+            character_class3 := chars("[");
             wildcard := wildcard();
         }
     }
