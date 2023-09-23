@@ -1,6 +1,7 @@
 use {
     std::fmt::{self, Display, Formatter},
     regex::Regex,
+    crate::*,
     crate::rule::RuleId,
 };
 
@@ -16,17 +17,12 @@ pub enum Element {
 
 impl Element {
     pub fn times(self, n: usize) -> Element {
-        let range = LoopRange {
-            min: n,
-            max: Maxable::Max(n),
-        };
-
-        Element::Loop(Box::new(self), range)
+        self.min_max(n, n)
     }
 
     pub fn min_max(self, min: usize, max: usize) -> Element {
         let range = LoopRange {
-            min: min,
+            min,
             max: Maxable::Max(max),
         };
 
@@ -35,7 +31,7 @@ impl Element {
 
     pub fn min(self, min: usize) -> Element {
         let range = LoopRange {
-            min: min,
+            min,
             max: Maxable::NoLimit,
         };
 
@@ -51,12 +47,20 @@ impl Element {
         Element::Loop(Box::new(self), range)
     }
 
+    pub fn optional(self) -> Element {
+        self.min_max(0, 1)
+    }
+
     pub fn poslook(self) -> Element {
         Element::PositiveLookahead(Box::new(self))
     }
 
     pub fn neglook(self) -> Element {
         Element::NegativeLookahead(Box::new(self))
+    }
+
+    pub fn separate(self, separator: Element) -> Element {
+        seq![self.clone(), seq![separator.clone(), self].min(0), separator.optional()]
     }
 
     pub fn has_left_recursion(&self, rule_id: &RuleId) -> bool {

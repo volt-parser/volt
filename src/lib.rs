@@ -12,6 +12,7 @@ use {
     rule::*,
 };
 
+// todo: rename add_rules
 #[macro_export]
 macro_rules! add_rules {
     ($($rule_name:ident $([$separator:expr])? := $rule_elem:expr;)*) => {

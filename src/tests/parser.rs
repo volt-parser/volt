@@ -192,6 +192,69 @@ speculate!{
         }
     }
 
+    describe "separated element" {
+        it "should contain at least one item" {
+            expect_failure("", "TestModule::separated", ParserError::NoMatchedRule);
+        }
+
+        it "can put single item" {
+            expect_success("a", "TestModule::separated", tree!{
+                node!{
+                    "TestModule::separated" => vec![
+                        leaf!("a"),
+                    ]
+                }
+            });
+        }
+
+        it "can put a separator at the last of single item" {
+            expect_success("a,", "TestModule::separated", tree!{
+                node!{
+                    "TestModule::separated" => vec![
+                        leaf!("a"),
+                        leaf!(","),
+                    ]
+                }
+            });
+        }
+
+        it "can put multiple items" {
+            expect_success("a,a", "TestModule::separated", tree!{
+                node!{
+                    "TestModule::separated" => vec![
+                        leaf!("a"),
+                        leaf!(","),
+                        leaf!("a"),
+                    ]
+                }
+            });
+        }
+
+        it "can put a separator at the last of multiple items" {
+            expect_success("a,a,", "TestModule::separated", tree!{
+                node!{
+                    "TestModule::separated" => vec![
+                        leaf!("a"),
+                        leaf!(","),
+                        leaf!("a"),
+                        leaf!(","),
+                    ]
+                }
+            });
+        }
+
+        // it "separators can be hidden" {
+        //     expect_success("a,a", "TestModule::separated", tree!{
+        //         node!{
+        //             "TestModule::separated" => vec![
+        //                 leaf!("a"),
+        //                 leaf!("a"),
+        //             ]
+        //         }
+        //     });
+        // }
+    }
+
     describe "string expression" {
         it "string consumes characters as much its length 1" {
             expect_failure("a", "TestModule::string", ParserError::NoMatchedRule);
@@ -313,6 +376,7 @@ struct TestModule {
     loop_range3: Element,
     poslook: Element,
     neglook: Element,
+    separated: Element,
     string: Element,
     multibyte_string: Element,
     character_class1: Element,
@@ -332,6 +396,7 @@ impl Module for TestModule {
             loop_range3 := seq![wildcard().max(1)];
             poslook := seq![str("a").poslook(), wildcard()];
             neglook := seq![str("a").neglook(), wildcard()];
+            separated := wildcard().separate(str(","));
             string := str("ab");
             multibyte_string := str("あい");
             character_class1 := chars("ab");
