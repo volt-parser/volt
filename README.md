@@ -63,7 +63,9 @@ impl Module for MyModule {
 
 |機能|構文|例|説明|
 |:-|:-|:-|:-|
-|命名|`name(s: &str)`|`name("syntax")`|ノード名を変更する|
+|グループ化|`group(name: &str)`|`group("syntax")`|子要素をグループ化する|
+|展開|`expand()`|`expand()`|ノードの全階層の子要素を親に展開する|
+|展開|`expand_once()`|`expand_once()`|ノードの1階層の子要素を親に展開する|
 |結合|`join(e: Element)`|`join(seq![str("volt"), str("watt")])`|子要素を1つのリーフに結合する|
 ||`reduce`||子要素を加工する|
 |隠蔽|`hide()`|`hide()`|生成された要素を構文木に反映しない|
