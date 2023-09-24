@@ -22,6 +22,13 @@ macro_rules! leaf {
     };
 }
 
+#[macro_export]
+macro_rules! error {
+    ($value:expr) => {
+        SyntaxChild::error($value.to_string())
+    };
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct SyntaxTree {
     pub root: SyntaxNode,
@@ -35,10 +42,12 @@ impl SyntaxTree {
     }
 }
 
+// todo: add position
 #[derive(Clone, Debug, PartialEq)]
 pub enum SyntaxChild {
     Node(SyntaxNode),
     Leaf(SyntaxLeaf),
+    Error(SyntaxError),
 }
 
 impl SyntaxChild {
@@ -50,6 +59,10 @@ impl SyntaxChild {
         SyntaxChild::Leaf(SyntaxLeaf::new(value))
     }
 
+    pub fn error(message: String) -> SyntaxChild {
+        SyntaxChild::Error(SyntaxError::new(message))
+    }
+
     pub fn join_children(&self) -> String {
         let mut s = String::new();
 
@@ -58,6 +71,7 @@ impl SyntaxChild {
                 s += &each_child.join_children()
             },
             SyntaxChild::Leaf(leaf) => s += &leaf.value,
+            SyntaxChild::Error(_) => (),
         }
 
         s
@@ -102,11 +116,22 @@ impl SyntaxLeaf {
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct SyntaxError {
+    pub message: String,
+}
+
+impl SyntaxError {
+    pub fn new(message: String) -> SyntaxError {
+        SyntaxError {
+            message,
+        }
+    }
+}
+
 pub trait Expandable {
     fn expand(self, hierarchy: usize, recursive: bool) -> Vec<SyntaxChild>;
 }
-
-// [a, [b, [c]], d]
 
 impl Expandable for Vec<SyntaxChild> {
     fn expand(self, hierarchy: usize, recursive: bool) -> Vec<SyntaxChild> {

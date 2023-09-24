@@ -13,6 +13,7 @@ pub enum Element {
     Loop(Box<Element>, LoopRange),
     PositiveLookahead(Box<Element>),
     NegativeLookahead(Box<Element>),
+    Error(Box<Element>, Box<Element>, String),
     Group(Box<Element>, String),
     Expansion(Box<Element>),
     ExpansionOnce(Box<Element>),
@@ -63,6 +64,10 @@ impl Element {
         Element::NegativeLookahead(Box::new(self))
     }
 
+    pub fn err(self, to: Element, message: &str) -> Element {
+        Element::Error(Box::new(self), Box::new(to), message.to_string())
+    }
+
     pub fn group(self, name: &str) -> Element {
         Element::Group(Box::new(self), name.to_string())
     }
@@ -107,6 +112,7 @@ impl Display for Element {
             Element::Loop(elem, range) => format!("{}{}", elem, range),
             Element::PositiveLookahead(elem) => format!("&{}", elem),
             Element::NegativeLookahead(elem) => format!("!{}", elem),
+            Element::Error(elem, to, message) => format!("{}.err({}, {})", elem, to, message),
             Element::Group(elem, name) => format!("{}#{}", elem, name),
             Element::Expansion(elem) | Element::ExpansionOnce(elem) => format!("{}###", elem),
             Element::Hidden(elem) => format!("{}##", elem),

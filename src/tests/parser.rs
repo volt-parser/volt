@@ -192,6 +192,33 @@ speculate!{
         }
     }
 
+    describe "error element" {
+        it "successes parsing normally" {
+            expect_success("a;", "TestModule::error", tree!{
+                node!{
+                    "TestModule::error" => vec![
+                        leaf!("a"),
+                        leaf!(";"),
+                    ]
+                }
+            });
+        }
+
+        it "adds input index until end string on failure" {
+            expect_success("b;", "TestModule::error", tree!{
+                node!{
+                    "TestModule::error" => vec![
+                        error!("msg"),
+                    ]
+                }
+            });
+        }
+
+        it "try parsing until end of input" {
+            expect_failure("b", "TestModule::error", ParserError::NoMatchedRule);
+        }
+    }
+
     describe "group element" {
         it "group a sequence" {
             expect_success("aa", "TestModule::sequence_group", tree!{
@@ -447,6 +474,7 @@ struct TestModule {
     loop_range3: Element,
     poslook: Element,
     neglook: Element,
+    error: Element,
     sequence_group: Element,
     expression_group: Element,
     expansion: Element,
@@ -472,6 +500,7 @@ impl Module for TestModule {
             loop_range3 := seq![wildcard().max(1)];
             poslook := seq![str("a").poslook(), wildcard()];
             neglook := seq![str("a").neglook(), wildcard()];
+            error := seq![str("a"), str(";")].err(str(";"), "msg");
             sequence_group := seq![wildcard(), wildcard()].group("group");
             expression_group := wildcard().group("group");
             expansion := seq![wildcard(), seq![wildcard(), seq![wildcard()].group("group_b")].group("group_a").expand()];

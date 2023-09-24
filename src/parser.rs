@@ -83,6 +83,19 @@ impl<'a> Parser<'a> {
             Element::Loop(elem, range) => self.times(elem, range)?,
             Element::PositiveLookahead(elem) => self.lookahead(elem, true)?,
             Element::NegativeLookahead(elem) => self.lookahead(elem, false)?,
+            Element::Error(elem, to, message) => match self.element(elem)? {
+                Some(children) => Some(children),
+                None => {
+                    while self.index <= self.input.count() {
+                        match self.element(to)? {
+                            Some(_) => return Ok(Some(vec![SyntaxChild::error(message.to_string())])),
+                            None => self.index += 1,
+                        }
+                    }
+
+                    None
+                },
+            },
             Element::Group(elem, name) => self.element(elem)?.map(|children| vec![SyntaxChild::Node(SyntaxNode::new(name.to_string(), children))]),
             Element::Expansion(elem) => self.element(elem)?.map(|children| children.expand(0, true)),
             Element::ExpansionOnce(elem) => self.element(elem)?.map(|children| children.expand(0, false)),
