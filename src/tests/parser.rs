@@ -193,10 +193,32 @@ speculate!{
     }
 
     describe "error element" {
-        it "successes parsing normally" {
-            expect_success("a;", "TestModule::error", tree!{
+        it "generates error when matched" {
+            expect_success("a", "TestModule::error", tree!{
                 node!{
                     "TestModule::error" => vec![
+                        error!("msg", vec![
+                            leaf!("a"),
+                        ]),
+                    ]
+                }
+            });
+        }
+
+        it "doesn't add input index when not matched" {
+            expect_success("", "TestModule::error", tree!{
+                node!{
+                    "TestModule::error" => vec![]
+                }
+            });
+        }
+    }
+
+    describe "error skip element" {
+        it "successes parsing normally" {
+            expect_success("a;", "TestModule::error_to", tree!{
+                node!{
+                    "TestModule::error_to" => vec![
                         leaf!("a"),
                         leaf!(";"),
                     ]
@@ -205,17 +227,19 @@ speculate!{
         }
 
         it "adds input index until end string on failure" {
-            expect_success("b;", "TestModule::error", tree!{
+            expect_success("b;", "TestModule::error_to", tree!{
                 node!{
-                    "TestModule::error" => vec![
-                        error!("msg"),
+                    "TestModule::error_to" => vec![
+                        error!("msg", vec![
+                            leaf!(";"),
+                        ]),
                     ]
                 }
             });
         }
 
         it "try parsing until end of input" {
-            expect_failure("b", "TestModule::error", ParserError::NoMatchedRule);
+            expect_failure("b", "TestModule::error_to", ParserError::NoMatchedRule);
         }
     }
 
@@ -475,6 +499,7 @@ struct TestModule {
     poslook: Element,
     neglook: Element,
     error: Element,
+    error_to: Element,
     sequence_group: Element,
     expression_group: Element,
     expansion: Element,
@@ -500,7 +525,8 @@ impl Module for TestModule {
             loop_range3 := seq![wildcard().max(1)];
             poslook := seq![str("a").poslook(), wildcard()];
             neglook := seq![str("a").neglook(), wildcard()];
-            error := seq![str("a"), str(";")].err(str(";"), "msg");
+            error := str("a").err("msg");
+            error_to := seq![str("a"), str(";")].err_to("msg", str(";"));
             sequence_group := seq![wildcard(), wildcard()].group("group");
             expression_group := wildcard().group("group");
             expansion := seq![wildcard(), seq![wildcard(), seq![wildcard()].group("group_b")].group("group_a").expand()];

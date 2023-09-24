@@ -24,8 +24,8 @@ macro_rules! leaf {
 
 #[macro_export]
 macro_rules! error {
-    ($value:expr) => {
-        SyntaxChild::error($value.to_string())
+    ($message:expr, $children:expr) => {
+        SyntaxChild::error($message.to_string(), $children)
     };
 }
 
@@ -59,8 +59,8 @@ impl SyntaxChild {
         SyntaxChild::Leaf(SyntaxLeaf::new(value))
     }
 
-    pub fn error(message: String) -> SyntaxChild {
-        SyntaxChild::Error(SyntaxError::new(message))
+    pub fn error(message: String, children: Vec<SyntaxChild>) -> SyntaxChild {
+        SyntaxChild::Error(SyntaxError::new(message, children))
     }
 
     pub fn join_children(&self) -> String {
@@ -119,12 +119,14 @@ impl SyntaxLeaf {
 #[derive(Clone, Debug, PartialEq)]
 pub struct SyntaxError {
     pub message: String,
+    pub children: Vec<SyntaxChild>,
 }
 
 impl SyntaxError {
-    pub fn new(message: String) -> SyntaxError {
+    pub fn new(message: String, children: Vec<SyntaxChild>) -> SyntaxError {
         SyntaxError {
             message,
+            children,
         }
     }
 }

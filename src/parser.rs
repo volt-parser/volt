@@ -83,12 +83,16 @@ impl<'a> Parser<'a> {
             Element::Loop(elem, range) => self.times(elem, range)?,
             Element::PositiveLookahead(elem) => self.lookahead(elem, true)?,
             Element::NegativeLookahead(elem) => self.lookahead(elem, false)?,
-            Element::Error(elem, to, message) => match self.element(elem)? {
+            Element::Error(elem, message) => match self.element(elem)? {
+                Some(children) => Some(vec![SyntaxChild::error(message.to_string(), children)]),
+                None => Some(vec![]),
+            },
+            Element::ErrorSkip(elem, message, to) => match self.element(elem)? {
                 Some(children) => Some(children),
                 None => {
                     while self.index <= self.input.count() {
                         match self.element(to)? {
-                            Some(_) => return Ok(Some(vec![SyntaxChild::error(message.to_string())])),
+                            Some(children) => return Ok(Some(vec![SyntaxChild::error(message.to_string(), children)])),
                             None => self.index += 1,
                         }
                     }
