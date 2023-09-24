@@ -87,7 +87,12 @@ impl<'a> Parser<'a> {
                 Some(children) => Some(vec![SyntaxChild::error(message.to_string(), children)]),
                 None => Some(vec![]),
             },
-            Element::ErrorSkip(elem, message, to) => match self.element(elem)? {
+            // Element::Catch(elem, message) => self.element(elem)?.or(Some(vec![SyntaxChild::error(message.to_string(), vec![])])),
+            Element::Catch(elem, message) => match self.element(elem)? {
+                Some(children) => Some(children),
+                None => Some(vec![SyntaxChild::error(message.to_string(), vec![])]),
+            },
+            Element::CatchSkip(elem, message, to) => match self.element(elem)? {
                 Some(children) => Some(children),
                 None => {
                     while self.index <= self.input.count() {

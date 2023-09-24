@@ -14,7 +14,8 @@ pub enum Element {
     PositiveLookahead(Box<Element>),
     NegativeLookahead(Box<Element>),
     Error(Box<Element>, String),
-    ErrorSkip(Box<Element>, String, Box<Element>),
+    Catch(Box<Element>, String),
+    CatchSkip(Box<Element>, String, Box<Element>),
     Group(Box<Element>, String),
     Expansion(Box<Element>),
     ExpansionOnce(Box<Element>),
@@ -69,8 +70,12 @@ impl Element {
         Element::Error(Box::new(self), message.to_string())
     }
 
-    pub fn err_to(self, message: &str, to: Element) -> Element {
-        Element::ErrorSkip(Box::new(self), message.to_string(), Box::new(to))
+    pub fn catch(self, message: &str) -> Element {
+        Element::Catch(Box::new(self), message.to_string())
+    }
+
+    pub fn catch_to(self, message: &str, to: Element) -> Element {
+        Element::CatchSkip(Box::new(self), message.to_string(), Box::new(to))
     }
 
     pub fn group(self, name: &str) -> Element {
@@ -118,7 +123,8 @@ impl Display for Element {
             Element::PositiveLookahead(elem) => format!("&{}", elem),
             Element::NegativeLookahead(elem) => format!("!{}", elem),
             Element::Error(elem, message) => format!("{}.err({})", elem, message),
-            Element::ErrorSkip(elem, message, to) => format!("{}.err({}, {})", elem, to, message),
+            Element::Catch(elem, message) => format!("{}.catch({})", elem, message),
+            Element::CatchSkip(elem, message, to) => format!("{}.catch_to({}, {})", elem, to, message),
             Element::Group(elem, name) => format!("{}#{}", elem, name),
             Element::Expansion(elem) | Element::ExpansionOnce(elem) => format!("{}###", elem),
             Element::Hidden(elem) => format!("{}##", elem),

@@ -214,11 +214,35 @@ speculate!{
         }
     }
 
-    describe "error skip element" {
+    describe "catch element" {
         it "successes parsing normally" {
-            expect_success("a;", "TestModule::error_to", tree!{
+            expect_success("aa", "TestModule::catch", tree!{
                 node!{
-                    "TestModule::error_to" => vec![
+                    "TestModule::catch" => vec![
+                        leaf!("a"),
+                        leaf!("a"),
+                    ]
+                }
+            });
+        }
+
+        it "doesn't add input index on failure" {
+            expect_success("b", "TestModule::catch", tree!{
+                node!{
+                    "TestModule::catch" => vec![
+                        error!("msg", vec![]),
+                        leaf!("b"),
+                    ]
+                }
+            });
+        }
+    }
+
+    describe "catch skip element" {
+        it "successes parsing normally" {
+            expect_success("a;", "TestModule::catch_to", tree!{
+                node!{
+                    "TestModule::catch_to" => vec![
                         leaf!("a"),
                         leaf!(";"),
                     ]
@@ -227,9 +251,9 @@ speculate!{
         }
 
         it "adds input index until end string on failure" {
-            expect_success("b;", "TestModule::error_to", tree!{
+            expect_success("b;", "TestModule::catch_to", tree!{
                 node!{
-                    "TestModule::error_to" => vec![
+                    "TestModule::catch_to" => vec![
                         error!("msg", vec![
                             leaf!(";"),
                         ]),
@@ -239,7 +263,7 @@ speculate!{
         }
 
         it "try parsing until end of input" {
-            expect_failure("b", "TestModule::error_to", ParserError::NoMatchedRule);
+            expect_failure("b", "TestModule::catch_to", ParserError::NoMatchedRule);
         }
     }
 
@@ -499,7 +523,8 @@ struct TestModule {
     poslook: Element,
     neglook: Element,
     error: Element,
-    error_to: Element,
+    catch: Element,
+    catch_to: Element,
     sequence_group: Element,
     expression_group: Element,
     expansion: Element,
@@ -527,7 +552,8 @@ impl Module for TestModule {
             poslook := seq![str("a").poslook(), wildcard()];
             neglook := seq![str("a").neglook(), wildcard()];
             error := str("a").err("msg");
-            error_to := seq![str("a"), str(";")].err_to("msg", str(";"));
+            catch := seq![str("a").catch("msg"), wildcard()];
+            catch_to := seq![str("a"), str(";")].catch_to("msg", str(";"));
             sequence_group := seq![wildcard(), wildcard()].group("group");
             expression_group := wildcard().group("group");
             expansion := seq![wildcard(), seq![wildcard(), seq![wildcard()].group("group_b")].group("group_a").expand()];
