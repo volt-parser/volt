@@ -365,16 +365,16 @@ speculate!{
             });
         }
 
-        // it "separators can be hidden" {
-        //     expect_success("a,a", "TestModule::separated", tree!{
-        //         node!{
-        //             "TestModule::separated" => vec![
-        //                 leaf!("a"),
-        //                 leaf!("a"),
-        //             ]
-        //         }
-        //     });
-        // }
+        it "separators can be hidden" {
+            expect_success("a,a", "TestModule::separated_with_hidden_separator", tree!{
+                node!{
+                    "TestModule::separated_with_hidden_separator" => vec![
+                        leaf!("a"),
+                        leaf!("a"),
+                    ]
+                }
+            });
+        }
     }
 
     describe "string expression" {
@@ -506,6 +506,7 @@ struct TestModule {
     expansion_once: Element,
     hidden: Element,
     separated: Element,
+    separated_with_hidden_separator: Element,
     string: Element,
     multibyte_string: Element,
     character_class1: Element,
@@ -533,6 +534,7 @@ impl Module for TestModule {
             expansion_once := seq![wildcard(), seq![wildcard(), seq![wildcard()].group("group_b")].group("group_a").expand_once()];
             hidden := wildcard().hide();
             separated := wildcard().separate(str(","));
+            separated_with_hidden_separator := wildcard().separate(str(",").hide());
             string := str("ab");
             multibyte_string := str("あい");
             character_class1 := chars("ab");
