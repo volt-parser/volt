@@ -192,6 +192,7 @@ speculate!{
         }
     }
 
+    // todo: rename to grouped element
     describe "group element" {
         it "group a sequence" {
             expect_success("aa", "TestModule::group_sequence", tree!{
@@ -218,6 +219,16 @@ speculate!{
                             ]
                         }
                     ]
+                }
+            });
+        }
+    }
+
+    describe "hidden element" {
+        it "element shouldn't reflected in AST" {
+            expect_success("a", "TestModule::hidden", tree!{
+                node!{
+                    "TestModule::hidden" => vec![]
                 }
             });
         }
@@ -409,6 +420,7 @@ struct TestModule {
     neglook: Element,
     group_sequence: Element,
     group_expression: Element,
+    hidden: Element,
     separated: Element,
     string: Element,
     multibyte_string: Element,
@@ -429,8 +441,10 @@ impl Module for TestModule {
             loop_range3 := seq![wildcard().max(1)];
             poslook := seq![str("a").poslook(), wildcard()];
             neglook := seq![str("a").neglook(), wildcard()];
+            // todo: rename to sequence_group
             group_sequence := seq![wildcard(), wildcard()].group("group");
             group_expression := wildcard().group("group");
+            hidden := wildcard().hide();
             separated := wildcard().separate(str(","));
             string := str("ab");
             multibyte_string := str("あい");

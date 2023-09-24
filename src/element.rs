@@ -14,6 +14,7 @@ pub enum Element {
     PositiveLookahead(Box<Element>),
     NegativeLookahead(Box<Element>),
     Group(Box<Element>, String),
+    Hidden(Box<Element>),
 }
 
 impl Element {
@@ -64,6 +65,10 @@ impl Element {
         Element::Group(Box::new(self), name.to_string())
     }
 
+    pub fn hide(self) -> Element {
+        Element::Hidden(Box::new(self))
+    }
+
     pub fn separate(self, separator: Element) -> Element {
         seq![self.clone(), seq![separator.clone(), self].min(0), separator.optional()]
     }
@@ -93,6 +98,7 @@ impl Display for Element {
             Element::PositiveLookahead(elem) => format!("&{}", elem),
             Element::NegativeLookahead(elem) => format!("!{}", elem),
             Element::Group(elem, name) => format!("{}#{}", elem, name),
+            Element::Hidden(elem) => format!("{}##", elem),
         };
 
         write!(f, "{}", s)

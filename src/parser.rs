@@ -84,6 +84,7 @@ impl<'a> Parser<'a> {
             Element::PositiveLookahead(elem) => self.lookahead(elem, true)?,
             Element::NegativeLookahead(elem) => self.lookahead(elem, false)?,
             Element::Group(elem, name) => self.element(elem)?.map(|children| vec![SyntaxChild::Node(SyntaxNode::new(name.to_string(), children))]),
+            Element::Hidden(elem) => self.element(elem)?.map(|_| vec![]),
         };
 
         Ok(children)
