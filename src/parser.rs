@@ -83,6 +83,7 @@ impl<'a> Parser<'a> {
             Element::Loop(elem, range) => self.times(elem, range)?,
             Element::PositiveLookahead(elem) => self.lookahead(elem, true)?,
             Element::NegativeLookahead(elem) => self.lookahead(elem, false)?,
+            Element::Group(elem, name) => self.element(elem)?.map(|children| vec![SyntaxChild::Node(SyntaxNode::new(name.to_string(), children))]),
         };
 
         Ok(children)

@@ -39,7 +39,6 @@ impl SyntaxTree {
 pub enum SyntaxChild {
     Node(SyntaxNode),
     Leaf(SyntaxLeaf),
-    Continuation,
 }
 
 impl SyntaxChild {
@@ -59,7 +58,6 @@ impl SyntaxChild {
                 s += &each_child.join_children()
             },
             SyntaxChild::Leaf(leaf) => s += &leaf.value,
-            SyntaxChild::Continuation => (),
         }
 
         s

@@ -192,6 +192,37 @@ speculate!{
         }
     }
 
+    describe "group element" {
+        it "group a sequence" {
+            expect_success("aa", "TestModule::group_sequence", tree!{
+                node!{
+                    "TestModule::group_sequence" => vec![
+                        node!{
+                            "group" => vec![
+                                leaf!("a"),
+                                leaf!("a"),
+                            ]
+                        }
+                    ]
+                }
+            });
+        }
+
+        it "group an expression" {
+            expect_success("a", "TestModule::group_expression", tree!{
+                node!{
+                    "TestModule::group_expression" => vec![
+                        node!{
+                            "group" => vec![
+                                leaf!("a"),
+                            ]
+                        }
+                    ]
+                }
+            });
+        }
+    }
+
     describe "separated element" {
         it "should contain at least one item" {
             expect_failure("", "TestModule::separated", ParserError::NoMatchedRule);
@@ -376,6 +407,8 @@ struct TestModule {
     loop_range3: Element,
     poslook: Element,
     neglook: Element,
+    group_sequence: Element,
+    group_expression: Element,
     separated: Element,
     string: Element,
     multibyte_string: Element,
@@ -396,6 +429,8 @@ impl Module for TestModule {
             loop_range3 := seq![wildcard().max(1)];
             poslook := seq![str("a").poslook(), wildcard()];
             neglook := seq![str("a").neglook(), wildcard()];
+            group_sequence := seq![wildcard(), wildcard()].group("group");
+            group_expression := wildcard().group("group");
             separated := wildcard().separate(str(","));
             string := str("ab");
             multibyte_string := str("あい");
