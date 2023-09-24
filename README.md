@@ -63,6 +63,9 @@ impl Module for MyModule {
 
 |機能|構文|例|説明|
 |:-|:-|:-|:-|
+|エラー生成|`err(message: &str)`|`err("invalid_stmt")`|マッチした際にエラーを生成する|
+|エラー捕捉|`catch(message: &str)`|`catch("invalid_stmt")`|マッチしなかった際にエラーを生成し、パースを継続する|
+|エラー捕捉|`catch_to(message: &str, to: Element)`|`catch_to("invalid_stmt", str(";"))`|マッチしなかった際にエラーを生成し、`to` まで入力を進めてからパースを継続する|
 |グループ化|`group(name: &str)`|`group("syntax")`|子要素をグループ化する|
 |展開|`expand()`|`expand()`|ノードの全階層の子要素を親に展開する|
 |展開|`expand_once()`|`expand_once()`|ノードの1階層の子要素を親に展開する|
