@@ -224,6 +224,36 @@ speculate!{
         }
     }
 
+    describe "expansion element" {
+        it "expands children at all levels of hierarchy" {
+            expect_success("abc", "TestModule::expansion", tree!{
+                node!{
+                    "TestModule::expansion" => vec![
+                        leaf!("a"),
+                        leaf!("b"),
+                        leaf!("c"),
+                    ]
+                }
+            });
+        }
+
+        it "expands children at the first level of hierarchy" {
+            expect_success("abc", "TestModule::expansion_once", tree!{
+                node!{
+                    "TestModule::expansion_once" => vec![
+                        leaf!("a"),
+                        leaf!("b"),
+                        node!{
+                            "group_b" => vec![
+                                leaf!("c"),
+                            ]
+                        },
+                    ]
+                }
+            });
+        }
+    }
+
     describe "hidden element" {
         it "element shouldn't reflected in AST" {
             expect_success("a", "TestModule::hidden", tree!{
@@ -420,6 +450,8 @@ struct TestModule {
     neglook: Element,
     group_sequence: Element,
     group_expression: Element,
+    expansion: Element,
+    expansion_once: Element,
     hidden: Element,
     separated: Element,
     string: Element,
@@ -444,6 +476,8 @@ impl Module for TestModule {
             // todo: rename to sequence_group
             group_sequence := seq![wildcard(), wildcard()].group("group");
             group_expression := wildcard().group("group");
+            expansion := seq![wildcard(), seq![wildcard(), seq![wildcard()].group("group_b")].group("group_a").expand()];
+            expansion_once := seq![wildcard(), seq![wildcard(), seq![wildcard()].group("group_b")].group("group_a").expand_once()];
             hidden := wildcard().hide();
             separated := wildcard().separate(str(","));
             string := str("ab");

@@ -101,3 +101,24 @@ impl SyntaxLeaf {
         }
     }
 }
+
+pub trait Expandable {
+    fn expand(self, hierarchy: usize, recursive: bool) -> Vec<SyntaxChild>;
+}
+
+// [a, [b, [c]], d]
+
+impl Expandable for Vec<SyntaxChild> {
+    fn expand(self, hierarchy: usize, recursive: bool) -> Vec<SyntaxChild> {
+        let mut children: Vec<SyntaxChild> = Vec::new();
+
+        for each_child in self {
+            match each_child {
+                SyntaxChild::Node(node) if hierarchy == 0 || recursive => children.append(&mut node.children.expand(hierarchy + 1, recursive)),
+                _ => children.push(each_child),
+            }
+        }
+
+        children
+    }
+}

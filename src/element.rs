@@ -14,6 +14,8 @@ pub enum Element {
     PositiveLookahead(Box<Element>),
     NegativeLookahead(Box<Element>),
     Group(Box<Element>, String),
+    Expansion(Box<Element>),
+    ExpansionOnce(Box<Element>),
     Hidden(Box<Element>),
 }
 
@@ -65,6 +67,14 @@ impl Element {
         Element::Group(Box::new(self), name.to_string())
     }
 
+    pub fn expand(self) -> Element {
+        Element::Expansion(Box::new(self))
+    }
+
+    pub fn expand_once(self) -> Element {
+        Element::ExpansionOnce(Box::new(self))
+    }
+
     pub fn hide(self) -> Element {
         Element::Hidden(Box::new(self))
     }
@@ -98,6 +108,7 @@ impl Display for Element {
             Element::PositiveLookahead(elem) => format!("&{}", elem),
             Element::NegativeLookahead(elem) => format!("!{}", elem),
             Element::Group(elem, name) => format!("{}#{}", elem, name),
+            Element::Expansion(elem) | Element::ExpansionOnce(elem) => format!("{}###", elem),
             Element::Hidden(elem) => format!("{}##", elem),
         };
 
