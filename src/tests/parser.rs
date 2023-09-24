@@ -192,12 +192,11 @@ speculate!{
         }
     }
 
-    // todo: rename to grouped element
     describe "group element" {
         it "group a sequence" {
-            expect_success("aa", "TestModule::group_sequence", tree!{
+            expect_success("aa", "TestModule::sequence_group", tree!{
                 node!{
-                    "TestModule::group_sequence" => vec![
+                    "TestModule::sequence_group" => vec![
                         node!{
                             "group" => vec![
                                 leaf!("a"),
@@ -210,9 +209,9 @@ speculate!{
         }
 
         it "group an expression" {
-            expect_success("a", "TestModule::group_expression", tree!{
+            expect_success("a", "TestModule::expression_group", tree!{
                 node!{
-                    "TestModule::group_expression" => vec![
+                    "TestModule::expression_group" => vec![
                         node!{
                             "group" => vec![
                                 leaf!("a"),
@@ -448,8 +447,8 @@ struct TestModule {
     loop_range3: Element,
     poslook: Element,
     neglook: Element,
-    group_sequence: Element,
-    group_expression: Element,
+    sequence_group: Element,
+    expression_group: Element,
     expansion: Element,
     expansion_once: Element,
     hidden: Element,
@@ -473,9 +472,8 @@ impl Module for TestModule {
             loop_range3 := seq![wildcard().max(1)];
             poslook := seq![str("a").poslook(), wildcard()];
             neglook := seq![str("a").neglook(), wildcard()];
-            // todo: rename to sequence_group
-            group_sequence := seq![wildcard(), wildcard()].group("group");
-            group_expression := wildcard().group("group");
+            sequence_group := seq![wildcard(), wildcard()].group("group");
+            expression_group := wildcard().group("group");
             expansion := seq![wildcard(), seq![wildcard(), seq![wildcard()].group("group_b")].group("group_a").expand()];
             expansion_once := seq![wildcard(), seq![wildcard(), seq![wildcard()].group("group_b")].group("group_a").expand_once()];
             hidden := wildcard().hide();
