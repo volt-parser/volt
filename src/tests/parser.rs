@@ -399,6 +399,25 @@ speculate!{
                 }
             });
         }
+
+        it "accept first separator optionally when separated around" {
+            expect_success("a", "TestModule::separated_around", tree!{
+                node!{
+                    "TestModule::separated_around" => vec![
+                        leaf!("a"),
+                    ]
+                }
+            });
+
+            expect_success(",a", "TestModule::separated_around", tree!{
+                node!{
+                    "TestModule::separated_around" => vec![
+                        leaf!(","),
+                        leaf!("a"),
+                    ]
+                }
+            });
+        }
     }
 
     describe "string expression" {
@@ -532,6 +551,7 @@ struct TestModule {
     hidden: Element,
     separated: Element,
     separated_with_hidden_separator: Element,
+    separated_around: Element,
     string: Element,
     multibyte_string: Element,
     character_class1: Element,
@@ -561,6 +581,7 @@ impl Module for TestModule {
             hidden := wildcard().hide();
             separated := wildcard().separate(str(","));
             separated_with_hidden_separator := wildcard().separate(str(",").hide());
+            separated_around := wildcard().separate_around(str(","));
             string := str("ab");
             multibyte_string := str("あい");
             character_class1 := chars("ab");

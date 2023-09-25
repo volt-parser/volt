@@ -98,6 +98,10 @@ impl Element {
         seq![self.clone(), seq![separator.clone(), self].min(0), separator.optional()]
     }
 
+    pub fn separate_around(self, separator: Element) -> Element {
+        seq![separator.clone().optional(), self.clone(), seq![separator.clone(), self].min(0), separator.optional()]
+    }
+
     pub fn has_left_recursion(&self, rule_id: &RuleId) -> bool {
         match self {
             Element::Choice(elems) | Element::Sequence(elems) => match elems.get(0) {
