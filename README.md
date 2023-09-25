@@ -58,6 +58,8 @@ impl Module for MyModule {
 |0回もしくは1回|`optional()`|`optional()`|
 |肯定先読み|`poslook()`|`poslook()`|
 |否定先読み|`neglook()`|`neglook()`|
+|分割|`separate(e: Element)`|`separate(str(","))`|セパレータで分割する|
+|分割|`separate_around(e: Element)`|`separate_around(str(","))`|セパレータで分割する|
 
 ### Additional Features
 
