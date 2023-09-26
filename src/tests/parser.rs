@@ -23,6 +23,35 @@ speculate!{
             assert_ast(input, rule_id, Err(expected));
     }
 
+    describe "input index" {
+        it "generates line start indexes" {
+            assert_eq!(InputPositionCounter::from(""), (
+                InputPositionCounter {
+                    lines: vec![(0, 0)],
+                }
+            ));
+
+            assert_eq!(InputPositionCounter::from("a\nあ\n"), (
+                InputPositionCounter {
+                    lines: vec![(0, 2), (2, 2), (4, 0)],
+                }
+            ));
+        }
+
+        it "gets input position" {
+            expect_success("a\na\n", "TestModule::input_index", tree!{
+                node!{
+                    "TestModule::input_index" => vec![
+                        leaf!(pos!(0, 0, 0), "a"),
+                        leaf!(pos!(1, 0, 1), "\n"),
+                        leaf!(pos!(2, 1, 0), "a"),
+                        leaf!(pos!(3, 1, 1), "\n"),
+                    ]
+                }
+            });
+        }
+    }
+
     // it "detect max recursion excess" {
     //     expect_failure("", "TestModule::left_recursion", ParserError::ExceededMaxRecursion);
     // }
@@ -533,6 +562,7 @@ speculate!{
 
 #[derive(RuleContainer)]
 struct TestModule {
+    input_index: Element,
     // left_recursion: Element,
     choice: Element,
     sequence: Element,
@@ -563,6 +593,7 @@ struct TestModule {
 impl Module for TestModule {
     fn new() -> TestModule {
         add_rules!{
+            input_index := seq![str("a"), str("\n"), str("a"), str("\n")];
             // left_recursion := TestModule::left_recursion();
             choice := choice![str("a"), str("b")];
             sequence := seq![str("a"), str("b")];

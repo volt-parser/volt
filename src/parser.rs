@@ -6,7 +6,7 @@ use {
     }
 };
 
-trait ParserInput {
+pub trait ParserInput {
     fn count(&self) -> usize;
 
     fn slice(&self, skip: usize, take: usize) -> String;
@@ -36,6 +36,7 @@ pub struct Parser<'a> {
     volt: &'a Volt,
     input: &'a str,
     index: usize,
+    counter: InputPositionCounter,
     pub(crate) recursion: usize,
 }
 
@@ -45,6 +46,7 @@ impl<'a> Parser<'a> {
             volt,
             input,
             index: 0,
+            counter: InputPositionCounter::from(input),
             recursion: 0,
         };
 
@@ -213,8 +215,9 @@ impl<'a> Parser<'a> {
 
     fn string(&mut self, s: &str) -> OptionalParserResult<Vec<SyntaxChild>> {
         if self.input.count() >= self.index + s.count() && self.input.slice(self.index, s.count()) == *s {
+            let start_index = self.index;
             self.index += s.count();
-            Ok(Some(vec![SyntaxChild::leaf(s.to_string())]))
+            Ok(Some(vec![SyntaxChild::leaf(self.counter.get_position(start_index), s.to_string())]))
         } else {
             Ok(None)
         }
@@ -227,8 +230,9 @@ impl<'a> Parser<'a> {
 
             match regex.find(&target) {
                 Some(regex_match) if regex_match.start() == 0 => {
+                    let start_index = self.index;
                     self.index += 1;
-                    Ok(Some(vec![SyntaxChild::leaf(target)]))
+                    Ok(Some(vec![SyntaxChild::leaf(self.counter.get_position(start_index), target)]))
                 },
                 _ => Ok(None),
             }
@@ -240,8 +244,9 @@ impl<'a> Parser<'a> {
     fn wildcard(&mut self) -> OptionalParserResult<Vec<SyntaxChild>> {
         if self.input.count() >= self.index + 1 {
             let s = self.input.slice(self.index, 1);
+            let start_index = self.index;
             self.index += 1;
-            Ok(Some(vec![SyntaxChild::leaf(s)]))
+            Ok(Some(vec![SyntaxChild::leaf(self.counter.get_position(start_index), s)]))
         } else {
             Ok(None)
         }
