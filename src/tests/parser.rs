@@ -590,7 +590,7 @@ struct TestModule {
     wildcard: Element,
 }
 
-impl Module for TestModule {
+impl VoltModule for TestModule {
     fn new() -> TestModule {
         add_rules!{
             input_index := seq![str("a"), str("\n"), str("a"), str("\n")];

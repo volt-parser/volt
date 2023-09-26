@@ -54,7 +54,7 @@ impl Volt {
         }
     }
 
-    pub fn add_module<T: ModuleAssist>(&mut self, module: T) {
+    pub fn add_module<T: VoltModuleAssist>(&mut self, module: T) {
         let rules: Vec<Rule> = module.into_rule_vec().into();
 
         for each_rule in rules {
@@ -77,10 +77,10 @@ impl Volt {
     }
 }
 
-pub trait Module: ModuleAssist {
+pub trait VoltModule: VoltModuleAssist {
     fn new() -> Self;
 }
 
-pub trait ModuleAssist {
+pub trait VoltModuleAssist {
     fn into_rule_vec(self) -> RuleVec;
 }
