@@ -220,11 +220,17 @@ impl InputPosition {
     }
 }
 
-pub trait Expandable {
+pub trait SyntaxChildVec {
     fn expand(self, hierarchy: usize, recursive: bool) -> Vec<SyntaxChild>;
+
+    fn get_start_position(&self) -> Option<InputPosition>;
+
+    fn eject_errors(self) -> Vec<SyntaxChild>;
+
+    fn join_into_string(&self) -> String;
 }
 
-impl Expandable for Vec<SyntaxChild> {
+impl SyntaxChildVec for Vec<SyntaxChild> {
     fn expand(self, hierarchy: usize, recursive: bool) -> Vec<SyntaxChild> {
         let mut children: Vec<SyntaxChild> = Vec::new();
 
@@ -236,5 +242,49 @@ impl Expandable for Vec<SyntaxChild> {
         }
 
         children
+    }
+
+    fn get_start_position(&self) -> Option<InputPosition> {
+        for each_child in self {
+            match each_child {
+                SyntaxChild::Node(node) => if let Some(v) = node.children.get_start_position() {
+                    return Some(v);
+                },
+                SyntaxChild::Leaf(leaf) => return Some(leaf.start.clone()),
+                SyntaxChild::Error(err) => if let Some(v) = err.children.get_start_position() {
+                    return Some(v);
+                },
+            }
+        }
+
+        None
+    }
+
+    fn eject_errors(self) -> Vec<SyntaxChild> {
+        let mut errors = Vec::new();
+
+        for each_child in self {
+            match each_child {
+                SyntaxChild::Node(node) => errors.append(&mut node.children.eject_errors()),
+                SyntaxChild::Error(err) => errors.push(SyntaxChild::Error(err)),
+                _ => (),
+            }
+        }
+
+        errors
+    }
+
+    fn join_into_string(&self) -> String {
+        let mut value = String::new();
+
+        for each_child in self {
+            match each_child {
+                SyntaxChild::Node(node) => value += &node.children.join_into_string(),
+                SyntaxChild::Leaf(leaf) => value += &leaf.value,
+                SyntaxChild::Error(_) => (),
+            }
+        }
+
+        value
     }
 }

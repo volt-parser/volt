@@ -19,6 +19,7 @@ pub enum Element {
     Group(Box<Element>, String),
     Expansion(Box<Element>),
     ExpansionOnce(Box<Element>),
+    Join(Box<Element>),
     Hidden(Box<Element>),
 }
 
@@ -90,6 +91,10 @@ impl Element {
         Element::ExpansionOnce(Box::new(self))
     }
 
+    pub fn join(self) -> Element {
+        Element::Join(Box::new(self))
+    }
+
     pub fn hide(self) -> Element {
         Element::Hidden(Box::new(self))
     }
@@ -131,6 +136,7 @@ impl Display for Element {
             Element::CatchSkip(elem, message, to) => format!("{}.catch_to({}, {})", elem, to, message),
             Element::Group(elem, name) => format!("{}#{}", elem, name),
             Element::Expansion(elem) | Element::ExpansionOnce(elem) => format!("{}###", elem),
+            Element::Join(elem) => format!("{}.join", elem),
             Element::Hidden(elem) => format!("{}##", elem),
         };
 

@@ -357,6 +357,30 @@ speculate!{
         }
     }
 
+    describe "join element" {
+        it "a" {
+            expect_success("aa", "TestModule::join", tree!{
+                node!{
+                    "TestModule::join" => vec![
+                        leaf!("aa")
+                    ]
+                }
+            });
+        }
+
+        it "b" {
+            expect_success("aaa", "TestModule::errors_in_join", tree!{
+                node!{
+                    "TestModule::errors_in_join" => vec![
+                        leaf!("a"),
+                        error!("e1", vec![leaf!("a")]),
+                        error!("e2", vec![leaf!("a")]),
+                    ]
+                }
+            });
+        }
+    }
+
     describe "hidden element" {
         it "element shouldn't reflected in AST" {
             expect_success("a", "TestModule::hidden", tree!{
@@ -578,6 +602,8 @@ struct TestModule {
     expression_group: Element,
     expansion: Element,
     expansion_once: Element,
+    join: Element,
+    errors_in_join: Element,
     hidden: Element,
     separated: Element,
     separated_with_hidden_separator: Element,
@@ -609,6 +635,8 @@ impl VoltModule for TestModule {
             expression_group := wildcard().group("group");
             expansion := seq![wildcard(), seq![wildcard(), seq![wildcard()].group("group_b")].group("group_a").expand()];
             expansion_once := seq![wildcard(), seq![wildcard(), seq![wildcard()].group("group_b")].group("group_a").expand_once()];
+            join := seq![wildcard(), seq![wildcard()].group("g")].join();
+            errors_in_join := seq![wildcard(), wildcard().err("e1"), seq![wildcard().err("e2")].group("g")].join();
             hidden := wildcard().hide();
             separated := wildcard().separate(str(","));
             separated_with_hidden_separator := wildcard().separate(str(",").hide());

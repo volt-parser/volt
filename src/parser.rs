@@ -106,6 +106,17 @@ impl<'a> Parser<'a> {
             Element::Group(elem, name) => self.element(elem)?.map(|children| vec![SyntaxChild::Node(SyntaxNode::new(name.to_string(), children))]),
             Element::Expansion(elem) => self.element(elem)?.map(|children| children.expand(0, true)),
             Element::ExpansionOnce(elem) => self.element(elem)?.map(|children| children.expand(0, false)),
+            Element::Join(elem) => self.element(elem)?.map(|children| {
+                let start = if let Some(v) = children.get_start_position() {
+                    v
+                } else {
+                    InputPosition::new(usize::MAX, usize::MAX, usize::MAX)
+                };
+
+                let mut joined_children = vec![SyntaxChild::leaf(start, children.join_into_string())];
+                joined_children.append(&mut children.eject_errors());
+                joined_children
+            }),
             Element::Hidden(elem) => self.element(elem)?.map(|_| vec![]),
         };
 
