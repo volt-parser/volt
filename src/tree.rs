@@ -55,11 +55,11 @@ impl SyntaxTree {
     }
 }
 
-// todo: add position
 #[derive(Clone, Debug, PartialEq)]
 pub enum SyntaxChild {
     Node(SyntaxNode),
     Leaf(SyntaxLeaf),
+    // todo: add position
     Error(SyntaxError),
 }
 

@@ -2,7 +2,7 @@ use {
     crate::*,
     crate::parser::*,
     crate::tree::*,
-    volt_derive::RuleContainer,
+    volt_derive::VoltModuleDefinition,
     speculate::speculate,
 };
 
@@ -560,7 +560,7 @@ speculate!{
     }
 }
 
-#[derive(RuleContainer)]
+#[derive(VoltModuleDefinition)]
 struct TestModule {
     input_index: Element,
     // left_recursion: Element,
@@ -592,7 +592,7 @@ struct TestModule {
 
 impl VoltModule for TestModule {
     fn new() -> TestModule {
-        add_rules!{
+        define_rules!{
             input_index := seq![str("a"), str("\n"), str("a"), str("\n")];
             // left_recursion := TestModule::left_recursion();
             choice := choice![str("a"), str("b")];

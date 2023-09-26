@@ -5,6 +5,9 @@
 ## 利用
 
 ```rs
+use volt::{*, Module as VoltModule, element::*, rule::*};
+use volt_derive::RuleContainer;
+
 fn main() {
     // パーサ初期化
     let volt = &mut Volt::new();
@@ -20,15 +23,15 @@ fn main() {
 }
 
 // モジュール定義
-#[derive(RuleContainer)]
+#[derive(VoltModuleDefinition)]
 struct MyModule {
     syntax: Element,
 }
 
 // モジュールに構文規則を登録
-impl Module for MyModule {
+impl VoltModule for MyModule {
     fn new() -> MyModule {
-        add_rules!{
+        define_rules!{
             syntax := choice![str("volt"), str("watt")];
         }
     }
@@ -65,6 +68,7 @@ impl Module for MyModule {
 
 |機能|構文|例|説明|
 |:-|:-|:-|:-|
+|置換|`replace()`|`replace()`||
 |エラー生成|`err(message: &str)`|`err("invalid_stmt")`|マッチした際にエラーを生成する|
 |エラー捕捉|`catch(message: &str)`|`catch("invalid_stmt")`|マッチしなかった際にエラーを生成し、パースを継続する|
 |エラー捕捉|`catch_to(message: &str, to: Element)`|`catch_to("invalid_stmt", str(";"))`|マッチしなかった際にエラーを生成し、`to` まで入力を進めてからパースを継続する|
