@@ -99,6 +99,10 @@ impl Element {
         Element::Hidden(Box::new(self))
     }
 
+    pub fn around(self, enclosure: Element) -> Element {
+        seq![enclosure.clone(), self, enclosure]
+    }
+
     pub fn separate(self, separator: Element) -> Element {
         seq![self.clone(), seq![separator.clone(), self].min(0), separator.optional()]
     }

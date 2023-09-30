@@ -393,8 +393,28 @@ speculate!{
         }
     }
 
+    describe "around element" {
+        it "should have one item" {
+            expect_failure("", "TestModule::around", ParserError::NoMatchedRule);
+        }
+
+        it "should have enclosure at both side" {
+            expect_failure("a", "TestModule::around", ParserError::NoMatchedRule);
+
+            expect_success("'a'", "TestModule::around", tree!{
+                node!{
+                    "TestModule::around" => vec![
+                        leaf!("'"),
+                        leaf!("a"),
+                        leaf!("'"),
+                    ]
+                }
+            });
+        }
+    }
+
     describe "separated element" {
-        it "should contain at least one item" {
+        it "should have at least one item" {
             expect_failure("", "TestModule::separated", ParserError::NoMatchedRule);
         }
 
@@ -607,6 +627,7 @@ struct TestModule {
     join: Element,
     errors_in_join: Element,
     hidden: Element,
+    around: Element,
     separated: Element,
     separated_with_hidden_separator: Element,
     separated_around: Element,
@@ -640,6 +661,7 @@ impl VoltModule for TestModule {
             join := seq![wildcard(), seq![wildcard()].group("g")].join();
             errors_in_join := seq![wildcard(), wildcard().err("e1"), seq![wildcard().err("e2")].group("g")].join();
             hidden := wildcard().hide();
+            around := wildcard().around(str("'"));
             separated := wildcard().separate(str(","));
             separated_with_hidden_separator := wildcard().separate(str(",").hide());
             separated_around := wildcard().separate_around(str(","));
