@@ -1,4 +1,6 @@
 use {
+    // Use volt to resolve items in derive macro.
+    crate as volt,
     crate::*,
     crate::parser::*,
     crate::tree::*,
