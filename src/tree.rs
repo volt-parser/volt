@@ -104,15 +104,6 @@ impl SyntaxNode {
             children,
         }
     }
-
-    // pub fn child_at(&self, i: usize) -> &SyntaxChild {
-    //     match self.children.get(i) {
-    //         Some(v) => v,
-    //         None => panic!("Child index is invalid."),
-    //     }
-    // }
-
-    // todo: add node_at()
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -228,6 +219,15 @@ pub trait SyntaxChildVec {
     fn eject_errors(self) -> Vec<SyntaxChild>;
 
     fn join_into_string(&self) -> String;
+
+    fn get_child(&self, index: usize) -> &SyntaxChild;
+
+    // add: search_node()
+    fn get_node(&self, index: usize) -> &SyntaxNode;
+
+    fn get_leaf(&self, index: usize) -> &SyntaxLeaf;
+
+    fn get_error(&self, index: usize) -> &SyntaxError;
 }
 
 impl SyntaxChildVec for Vec<SyntaxChild> {
@@ -286,5 +286,39 @@ impl SyntaxChildVec for Vec<SyntaxChild> {
         }
 
         value
+    }
+
+    fn get_child(&self, index: usize) -> &SyntaxChild {
+        if let Some(v) = self.get(index) {
+            v
+        } else {
+            panic!("syntax child index is out of range");
+        }
+    }
+
+    // add: search_node()
+    fn get_node(&self, index: usize) -> &SyntaxNode {
+        if let SyntaxChild::Node(node) = self.get_child(index) {
+            node
+        } else {
+            panic!("expected syntax node");
+        }
+    }
+
+    fn get_leaf(&self, index: usize) -> &SyntaxLeaf {
+        if let SyntaxChild::Leaf(leaf) = self.get_child(index) {
+            leaf
+        } else {
+            panic!("expected syntax leaf");
+        }
+    }
+
+    // add: search_error()
+    fn get_error(&self, index: usize) -> &SyntaxError {
+        if let SyntaxChild::Error(error) = self.get_child(index) {
+            error
+        } else {
+            panic!("expected syntax error");
+        }
     }
 }
