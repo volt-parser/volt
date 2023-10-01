@@ -3,6 +3,7 @@ use {
     regex::Regex,
     crate::*,
     crate::rule::RuleId,
+    crate::tree::SyntaxChild,
 };
 
 #[derive(Clone)]
@@ -16,6 +17,7 @@ pub enum Element {
     Error(Box<Element>, String),
     Catch(Box<Element>, String),
     CatchSkip(Box<Element>, String, Box<Element>),
+    TreeReduction(Box<Element>, fn(Vec<SyntaxChild>) -> Vec<SyntaxChild>),
     Group(Box<Element>, String),
     Expansion(Box<Element>),
     ExpansionOnce(Box<Element>),
@@ -79,6 +81,10 @@ impl Element {
         Element::CatchSkip(Box::new(self), message.to_string(), Box::new(to))
     }
 
+    pub fn reduce(self, reducer: fn(Vec<SyntaxChild>) -> Vec<SyntaxChild>) -> Element {
+        Element::TreeReduction(Box::new(self), reducer)
+    }
+
     pub fn group(self, name: &str) -> Element {
         Element::Group(Box::new(self), name.to_string())
     }
@@ -138,6 +144,7 @@ impl Display for Element {
             Element::Error(elem, message) => format!("{}.err({})", elem, message),
             Element::Catch(elem, message) => format!("{}.catch({})", elem, message),
             Element::CatchSkip(elem, message, to) => format!("{}.catch_to({}, {})", elem, to, message),
+            Element::TreeReduction(elem, _) => format!("{}.reduce", elem),
             Element::Group(elem, name) => format!("{}#{}", elem, name),
             Element::Expansion(elem) | Element::ExpansionOnce(elem) => format!("{}###", elem),
             Element::Join(elem) => format!("{}.join", elem),

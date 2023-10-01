@@ -264,6 +264,20 @@ speculate!{
         }
     }
 
+    describe "tree reduction element" {
+        it "modify the result when input matched syntax rule" {
+            expect_success("a", "TestModule::tree_reduction", tree!(
+                node!("TestModule::tree_reduction" => [
+                    leaf!(InputPosition::new(0, 0, 0), "reduced"),
+                ])
+            ));
+        }
+
+        it "doesn't modify the result when input didn't match syntax rule" {
+            expect_failure("b", "TestModule::tree_reduction", ParserError::NoMatchedRule);
+        }
+    }
+
     describe "group element" {
         it "group a sequence" {
             expect_success("aa", "TestModule::sequence_group", tree!(
@@ -538,6 +552,7 @@ struct TestModule {
     error: Element,
     catch: Element,
     catch_to: Element,
+    tree_reduction: Element,
     sequence_group: Element,
     expression_group: Element,
     expansion: Element,
@@ -572,6 +587,7 @@ impl VoltModule for TestModule {
             error := str("a").err("msg");
             catch := seq![str("a").catch("msg"), wildcard()];
             catch_to := seq![str("a"), str(";")].catch_to("msg", str(";"));
+            tree_reduction := str("a").reduce(|v| vec![SyntaxChild::leaf(v.get_start_position().unwrap(), "reduced".to_string())]);
             sequence_group := seq![wildcard(), wildcard()].group("group");
             expression_group := wildcard().group("group");
             expansion := seq![wildcard(), seq![wildcard(), seq![wildcard()].group("group_b")].group("group_a").expand()];

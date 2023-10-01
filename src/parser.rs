@@ -103,6 +103,7 @@ impl<'a> Parser<'a> {
                     None
                 },
             },
+            Element::TreeReduction(elem, reducer) => self.element(elem)?.map(|children| reducer(children)),
             Element::Group(elem, name) => self.element(elem)?.map(|children| vec![SyntaxChild::Node(SyntaxNode::new(name.to_string(), children))]),
             Element::Expansion(elem) => self.element(elem)?.map(|children| children.expand(0, true)),
             Element::ExpansionOnce(elem) => self.element(elem)?.map(|children| children.expand(0, false)),
