@@ -41,16 +41,14 @@ speculate!{
         }
 
         it "gets input position" {
-            expect_success("a\na\n", "TestModule::input_index", tree!{
-                node!{
-                    "TestModule::input_index" => vec![
-                        leaf!(pos!(0, 0, 0), "a"),
-                        leaf!(pos!(1, 0, 1), "\n"),
-                        leaf!(pos!(2, 1, 0), "a"),
-                        leaf!(pos!(3, 1, 1), "\n"),
-                    ]
-                }
-            });
+            expect_success("a\na\n", "TestModule::input_index", tree!(
+                node!("TestModule::input_index" => [
+                    leaf!(pos!(0, 0, 0), "a"),
+                    leaf!(pos!(1, 0, 1), "\n"),
+                    leaf!(pos!(2, 1, 0), "a"),
+                    leaf!(pos!(3, 1, 1), "\n"),
+                ])
+            ));
         }
     }
 
@@ -68,23 +66,19 @@ speculate!{
         }
 
         it "choices first choice when match" {
-            expect_success("a", "TestModule::choice", tree!{
-                node!{
-                    "TestModule::choice" => vec![
-                        leaf!("a"),
-                    ]
-                }
-            });
+            expect_success("a", "TestModule::choice", tree!(
+                node!("TestModule::choice" => [
+                    leaf!("a"),
+                ])
+            ));
         }
 
         it "choices the next choice when first choice doesn't match" {
-            expect_success("b", "TestModule::choice", tree!{
-                node!{
-                    "TestModule::choice" => vec![
-                        leaf!("b"),
-                    ]
-                }
-            });
+            expect_success("b", "TestModule::choice", tree!(
+                node!("TestModule::choice" => [
+                    leaf!("b"),
+                ])
+            ));
         }
 
         it "choice doesn't match element not exist in children" {
@@ -102,14 +96,12 @@ speculate!{
         }
 
         it "sequence matches completely same input 1" {
-            expect_success("ab", "TestModule::sequence", tree!{
-                node!{
-                    "TestModule::sequence" => vec![
-                        leaf!("a"),
-                        leaf!("b"),
-                    ]
-                }
-            });
+            expect_success("ab", "TestModule::sequence", tree!(
+                node!("TestModule::sequence" => [
+                    leaf!("a"),
+                    leaf!("b"),
+                ])
+            ));
         }
 
         it "sequence matches completely same input 2" {
@@ -124,14 +116,12 @@ speculate!{
             }
 
             it "repeats for the number of times in the specified range 1-2" {
-                expect_success("aa", "TestModule::loop_range1", tree!{
-                    node!{
-                        "TestModule::loop_range1" => vec![
-                            leaf!("a"),
-                            leaf!("a"),
-                        ]
-                    }
-                });
+                expect_success("aa", "TestModule::loop_range1", tree!(
+                    node!("TestModule::loop_range1" => [
+                        leaf!("a"),
+                        leaf!("a"),
+                    ])
+                ));
             }
 
             it "repeats for the number of times in the specified range 1-3" {
@@ -145,44 +135,36 @@ speculate!{
             }
 
             it "repeats for the number of times in the specified range 2-2" {
-                expect_success("a", "TestModule::loop_range2", tree!{
-                    node!{
-                        "TestModule::loop_range2" => vec![
-                            leaf!("a"),
-                        ]
-                    }
-                });
+                expect_success("a", "TestModule::loop_range2", tree!(
+                    node!("TestModule::loop_range2" => [
+                        leaf!("a"),
+                    ])
+                ));
             }
 
             it "repeats for the number of times in the specified range 2-3" {
-                expect_success("aa", "TestModule::loop_range2", tree!{
-                    node!{
-                        "TestModule::loop_range2" => vec![
-                            leaf!("a"),
-                            leaf!("a"),
-                        ]
-                    }
-                });
+                expect_success("aa", "TestModule::loop_range2", tree!(
+                    node!("TestModule::loop_range2" => [
+                        leaf!("a"),
+                        leaf!("a"),
+                    ])
+                ));
             }
         }
 
         describe "max" {
             it "repeats for the number of times in the specified range 3-1" {
-                expect_success("", "TestModule::loop_range3", tree!{
-                    node!{
-                        "TestModule::loop_range3" => vec![]
-                    }
-                });
+                expect_success("", "TestModule::loop_range3", tree!(
+                    node!("TestModule::loop_range3" => [])
+                ));
             }
 
             it "repeats for the number of times in the specified range 3-2" {
-                expect_success("a", "TestModule::loop_range3", tree!{
-                    node!{
-                        "TestModule::loop_range3" => vec![
-                            leaf!("a"),
-                        ]
-                    }
-                });
+                expect_success("a", "TestModule::loop_range3", tree!(
+                    node!("TestModule::loop_range3" => [
+                        leaf!("a"),
+                    ])
+                ));
             }
 
             it "repeats for the number of times in the specified range 3-3" {
@@ -193,13 +175,11 @@ speculate!{
 
     describe "positive lookahead element" {
         it "doesn't change input index 1" {
-            expect_success("a", "TestModule::poslook", tree!{
-                node!{
-                    "TestModule::poslook" => vec![
-                        leaf!("a"),
-                    ]
-                }
-            });
+            expect_success("a", "TestModule::poslook", tree!(
+                node!("TestModule::poslook" => [
+                    leaf!("a"),
+                ])
+            ));
         }
 
         it "doesn't change input index 2" {
@@ -213,84 +193,70 @@ speculate!{
         }
 
         it "doesn't change input index 2" {
-            expect_success("b", "TestModule::neglook", tree!{
-                node!{
-                    "TestModule::neglook" => vec![
-                        leaf!("b"),
-                    ]
-                }
-            });
+            expect_success("b", "TestModule::neglook", tree!(
+                node!("TestModule::neglook" => [
+                    leaf!("b"),
+                ])
+            ));
         }
     }
 
     describe "error element" {
         it "generates error when matched" {
-            expect_success("a", "TestModule::error", tree!{
-                node!{
-                    "TestModule::error" => vec![
-                        error!("msg", vec![
-                            leaf!("a"),
-                        ]),
-                    ]
-                }
-            });
+            expect_success("a", "TestModule::error", tree!(
+                node!("TestModule::error" => [
+                    error!("msg", [
+                        leaf!("a"),
+                    ]),
+                ])
+            ));
         }
 
         it "doesn't add input index when not matched" {
-            expect_success("", "TestModule::error", tree!{
-                node!{
-                    "TestModule::error" => vec![]
-                }
-            });
+            expect_success("", "TestModule::error", tree!(
+                node!("TestModule::error" => [])
+            ));
         }
     }
 
     describe "catch element" {
         it "successes parsing normally" {
-            expect_success("aa", "TestModule::catch", tree!{
-                node!{
-                    "TestModule::catch" => vec![
-                        leaf!("a"),
-                        leaf!("a"),
-                    ]
-                }
-            });
+            expect_success("aa", "TestModule::catch", tree!(
+                node!("TestModule::catch" => [
+                    leaf!("a"),
+                    leaf!("a"),
+                ])
+            ));
         }
 
         it "doesn't add input index on failure" {
-            expect_success("b", "TestModule::catch", tree!{
-                node!{
-                    "TestModule::catch" => vec![
-                        error!("msg", vec![]),
-                        leaf!("b"),
-                    ]
-                }
-            });
+            expect_success("b", "TestModule::catch", tree!(
+                node!("TestModule::catch" => [
+                    error!("msg", []),
+                    leaf!("b"),
+                ])
+            ));
         }
     }
 
     describe "catch skip element" {
         it "successes parsing normally" {
-            expect_success("a;", "TestModule::catch_to", tree!{
-                node!{
-                    "TestModule::catch_to" => vec![
-                        leaf!("a"),
-                        leaf!(";"),
-                    ]
-                }
-            });
+            expect_success("a;", "TestModule::catch_to", tree!(
+                node!("TestModule::catch_to" => [
+                    leaf!("a"),
+                    leaf!(";"),
+                ])
+            ));
         }
 
         it "adds input index until end string on failure" {
-            expect_success("b;", "TestModule::catch_to", tree!{
-                node!{
-                    "TestModule::catch_to" => vec![
-                        error!("msg", vec![
-                            leaf!(";"),
-                        ]),
-                    ]
-                }
-            });
+            expect_success("b;", "TestModule::catch_to", tree!(
+                node!("TestModule::catch_to" => [
+                    error!("msg", [
+                        leaf!(";"),
+                    ]),
+                ])
+            ));
         }
 
         it "try parsing until end of input" {
@@ -300,96 +266,80 @@ speculate!{
 
     describe "group element" {
         it "group a sequence" {
-            expect_success("aa", "TestModule::sequence_group", tree!{
-                node!{
-                    "TestModule::sequence_group" => vec![
-                        node!{
-                            "group" => vec![
-                                leaf!("a"),
-                                leaf!("a"),
-                            ]
-                        }
-                    ]
-                }
-            });
+            expect_success("aa", "TestModule::sequence_group", tree!(
+                node!("TestModule::sequence_group" => [
+                    node!("group" => [
+                        leaf!("a"),
+                        leaf!("a"),
+                    ])
+                ])
+            ));
         }
 
         it "group an expression" {
-            expect_success("a", "TestModule::expression_group", tree!{
-                node!{
-                    "TestModule::expression_group" => vec![
-                        node!{
-                            "group" => vec![
-                                leaf!("a"),
-                            ]
-                        }
-                    ]
-                }
-            });
+            expect_success("a", "TestModule::expression_group", tree!(
+                node!("TestModule::expression_group" => [
+                    node!("group" => [
+                        leaf!("a"),
+                    ])
+                ])
+            ));
         }
     }
 
     describe "expansion element" {
         it "expands children at all levels of hierarchy" {
-            expect_success("abc", "TestModule::expansion", tree!{
-                node!{
-                    "TestModule::expansion" => vec![
-                        leaf!("a"),
-                        leaf!("b"),
-                        leaf!("c"),
-                    ]
-                }
-            });
+            expect_success("abc", "TestModule::expansion", tree!(
+                node!("TestModule::expansion" => [
+                    leaf!("a"),
+                    leaf!("b"),
+                    leaf!("c"),
+                ])
+            ));
         }
 
         it "expands children at the first level of hierarchy" {
-            expect_success("abc", "TestModule::expansion_once", tree!{
-                node!{
-                    "TestModule::expansion_once" => vec![
-                        leaf!("a"),
-                        leaf!("b"),
-                        node!{
-                            "group_b" => vec![
-                                leaf!("c"),
-                            ]
-                        },
-                    ]
-                }
-            });
+            expect_success("abc", "TestModule::expansion_once", tree!(
+                node!("TestModule::expansion_once" => [
+                    leaf!("a"),
+                    leaf!("b"),
+                    node!("group_b" => [
+                        leaf!("c"),
+                    ]),
+                ])
+            ));
         }
     }
 
     describe "join element" {
         it "a" {
-            expect_success("aa", "TestModule::join", tree!{
-                node!{
-                    "TestModule::join" => vec![
-                        leaf!("aa")
-                    ]
-                }
-            });
+            expect_success("aa", "TestModule::join", tree!(
+                node!("TestModule::join" => [
+                    leaf!("aa")
+                ])
+            ));
         }
 
         it "b" {
-            expect_success("aaa", "TestModule::errors_in_join", tree!{
-                node!{
-                    "TestModule::errors_in_join" => vec![
+            expect_success("aaa", "TestModule::errors_in_join", tree!(
+                node!("TestModule::errors_in_join" => [
+                    leaf!("a"),
+                    error!("e1", [
                         leaf!("a"),
-                        error!("e1", vec![leaf!("a")]),
-                        error!("e2", vec![leaf!("a")]),
-                    ]
-                }
-            });
+                    ]),
+                    error!("e2", [
+                        leaf!("a"),
+                    ]),
+                ])
+            ));
         }
     }
 
     describe "hidden element" {
         it "element shouldn't reflected in AST" {
-            expect_success("a", "TestModule::hidden", tree!{
-                node!{
-                    "TestModule::hidden" => vec![]
-                }
-            });
+            expect_success("a", "TestModule::hidden", tree!(
+                node!("TestModule::hidden" => [])
+            ));
         }
     }
 
@@ -401,15 +351,13 @@ speculate!{
         it "should have enclosure at both side" {
             expect_failure("a", "TestModule::around", ParserError::NoMatchedRule);
 
-            expect_success("'a'", "TestModule::around", tree!{
-                node!{
-                    "TestModule::around" => vec![
-                        leaf!("'"),
-                        leaf!("a"),
-                        leaf!("'"),
-                    ]
-                }
-            });
+            expect_success("'a'", "TestModule::around", tree!(
+                node!("TestModule::around" => [
+                    leaf!("'"),
+                    leaf!("a"),
+                    leaf!("'"),
+                ])
+            ));
         }
     }
 
@@ -419,79 +367,65 @@ speculate!{
         }
 
         it "can put single item" {
-            expect_success("a", "TestModule::separated", tree!{
-                node!{
-                    "TestModule::separated" => vec![
-                        leaf!("a"),
-                    ]
-                }
-            });
+            expect_success("a", "TestModule::separated", tree!(
+                node!("TestModule::separated" => [
+                    leaf!("a"),
+                ])
+            ));
         }
 
         it "can put a separator at the last of single item" {
-            expect_success("a,", "TestModule::separated", tree!{
-                node!{
-                    "TestModule::separated" => vec![
-                        leaf!("a"),
-                        leaf!(","),
-                    ]
-                }
-            });
+            expect_success("a,", "TestModule::separated", tree!(
+                node!("TestModule::separated" => [
+                    leaf!("a"),
+                    leaf!(","),
+                ])
+            ));
         }
 
         it "can put multiple items" {
-            expect_success("a,a", "TestModule::separated", tree!{
-                node!{
-                    "TestModule::separated" => vec![
-                        leaf!("a"),
-                        leaf!(","),
-                        leaf!("a"),
-                    ]
-                }
-            });
+            expect_success("a,a", "TestModule::separated", tree!(
+                node!("TestModule::separated" => [
+                    leaf!("a"),
+                    leaf!(","),
+                    leaf!("a"),
+                ])
+            ));
         }
 
         it "can put a separator at the last of multiple items" {
-            expect_success("a,a,", "TestModule::separated", tree!{
-                node!{
-                    "TestModule::separated" => vec![
-                        leaf!("a"),
-                        leaf!(","),
-                        leaf!("a"),
-                        leaf!(","),
-                    ]
-                }
-            });
+            expect_success("a,a,", "TestModule::separated", tree!(
+                node!("TestModule::separated" => [
+                    leaf!("a"),
+                    leaf!(","),
+                    leaf!("a"),
+                    leaf!(","),
+                ])
+            ));
         }
 
         it "separators can be hidden" {
-            expect_success("a,a", "TestModule::separated_with_hidden_separator", tree!{
-                node!{
-                    "TestModule::separated_with_hidden_separator" => vec![
-                        leaf!("a"),
-                        leaf!("a"),
-                    ]
-                }
-            });
+            expect_success("a,a", "TestModule::separated_with_hidden_separator", tree!(
+                node!("TestModule::separated_with_hidden_separator" => [
+                    leaf!("a"),
+                    leaf!("a"),
+                ])
+            ));
         }
 
         it "accept first separator optionally when separated around" {
-            expect_success("a", "TestModule::separated_around", tree!{
-                node!{
-                    "TestModule::separated_around" => vec![
-                        leaf!("a"),
-                    ]
-                }
-            });
+            expect_success("a", "TestModule::separated_around", tree!(
+                node!("TestModule::separated_around" => [
+                    leaf!("a"),
+                ])
+            ));
 
-            expect_success(",a", "TestModule::separated_around", tree!{
-                node!{
-                    "TestModule::separated_around" => vec![
-                        leaf!(","),
-                        leaf!("a"),
-                    ]
-                }
-            });
+            expect_success(",a", "TestModule::separated_around", tree!(
+                node!("TestModule::separated_around" => [
+                    leaf!(","),
+                    leaf!("a"),
+                ])
+            ));
         }
     }
 
@@ -505,45 +439,37 @@ speculate!{
         }
 
         it "string generates single leaf" {
-            expect_success("ab", "TestModule::string", tree!{
-                node!{
-                    "TestModule::string" => vec![
-                        leaf!("ab"),
-                    ]
-                }
-            });
+            expect_success("ab", "TestModule::string", tree!(
+                node!("TestModule::string" => [
+                    leaf!("ab"),
+                ])
+            ));
         }
 
         it "string supports multibyte characters" {
-            expect_success("あい", "TestModule::multibyte_string", tree!{
-                node!{
-                    "TestModule::multibyte_string" => vec![
-                        leaf!("あい"),
-                    ]
-                }
-            });
+            expect_success("あい", "TestModule::multibyte_string", tree!(
+                node!("TestModule::multibyte_string" => [
+                    leaf!("あい"),
+                ])
+            ));
         }
     }
 
     describe "character class expression" {
         it "matches a specified character 1" {
-            expect_success("a", "TestModule::character_class1", tree!{
-                node!{
-                    "TestModule::character_class1" => vec![
-                        leaf!("a"),
-                    ]
-                }
-            });
+            expect_success("a", "TestModule::character_class1", tree!(
+                node!("TestModule::character_class1" => [
+                    leaf!("a"),
+                ])
+            ));
         }
 
         it "matches a specified character 2" {
-            expect_success("b", "TestModule::character_class1", tree!{
-                node!{
-                    "TestModule::character_class1" => vec![
-                        leaf!("b"),
-                    ]
-                }
-            });
+            expect_success("b", "TestModule::character_class1", tree!(
+                node!("TestModule::character_class1" => [
+                    leaf!("b"),
+                ])
+            ));
         }
 
         it "matches a specified character 3" {
@@ -555,23 +481,19 @@ speculate!{
         }
 
         it "supports number specification" {
-            expect_success("0", "TestModule::character_class2", tree!{
-                node!{
-                    "TestModule::character_class2" => vec![
-                        leaf!("0"),
-                    ]
-                }
-            });
+            expect_success("0", "TestModule::character_class2", tree!(
+                node!("TestModule::character_class2" => [
+                    leaf!("0"),
+                ])
+            ));
         }
 
         it "supports regex pattern enclosure" {
-            expect_success("[", "TestModule::character_class3", tree!{
-                node!{
-                    "TestModule::character_class3" => vec![
-                        leaf!("["),
-                    ]
-                }
-            });
+            expect_success("[", "TestModule::character_class3", tree!(
+                node!("TestModule::character_class3" => [
+                    leaf!("["),
+                ])
+            ));
         }
     }
 
@@ -585,23 +507,19 @@ speculate!{
         }
 
         it "wildcard generates single leaf" {
-            expect_success("a", "TestModule::wildcard", tree!{
-                node!{
-                    "TestModule::wildcard" => vec![
-                        leaf!("a"),
-                    ]
-                }
-            });
+            expect_success("a", "TestModule::wildcard", tree!(
+                node!("TestModule::wildcard" => [
+                    leaf!("a"),
+                ])
+            ));
         }
 
         it "wildcard treats single multibyte character as a character" {
-            expect_success("あ", "TestModule::wildcard", tree!{
-                node!{
-                    "TestModule::wildcard" => vec![
-                        leaf!("あ"),
-                    ]
-                }
-            });
+            expect_success("あ", "TestModule::wildcard", tree!(
+                node!("TestModule::wildcard" => [
+                    leaf!("あ"),
+                ])
+            ));
         }
     }
 }

@@ -12,8 +12,8 @@ macro_rules! tree {
 
 #[macro_export]
 macro_rules! node {
-    ($name:expr => $children:expr) => {
-        SyntaxChild::node($name.to_string(), $children)
+    ($name:expr => [$($child:expr),* $(,)?]) => {
+        SyntaxChild::node($name.to_string(), vec![$($child),*])
     };
 }
 
@@ -30,8 +30,8 @@ macro_rules! leaf {
 
 #[macro_export]
 macro_rules! error {
-    ($message:expr, $children:expr) => {
-        SyntaxChild::error($message.to_string(), $children)
+    ($message:expr, [$($child:expr),* $(,)?]) => {
+        SyntaxChild::error($message.to_string(), vec![$($child),*])
     };
 }
 
