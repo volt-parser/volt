@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::parser::ParserInput;
 
 #[macro_export]
@@ -42,9 +44,31 @@ macro_rules! pos {
     };
 }
 
+pub trait SyntaxDisplay {
+    fn fmt(&self, indent: usize) -> Vec<SyntaxDisplayLine>;
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct SyntaxDisplayLine {
+    pub indent: usize,
+    pub text: String,
+}
+
+impl fmt::Display for SyntaxDisplayLine {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}{}", "  ".repeat(self.indent), self.text)
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct SyntaxTree {
     pub root: SyntaxNode,
+}
+
+impl SyntaxDisplay for SyntaxTree {
+    fn fmt(&self, indent: usize) -> Vec<SyntaxDisplayLine> {
+        self.root.fmt(indent)
+    }
 }
 
 impl SyntaxTree {
@@ -61,6 +85,16 @@ pub enum SyntaxChild {
     Leaf(SyntaxLeaf),
     // todo: add position
     Error(SyntaxError),
+}
+
+impl SyntaxDisplay for SyntaxChild {
+    fn fmt(&self, indent: usize) -> Vec<SyntaxDisplayLine> {
+        match self {
+            SyntaxChild::Node(node) => node.fmt(indent),
+            SyntaxChild::Leaf(leaf) => leaf.fmt(indent),
+            SyntaxChild::Error(error) => error.fmt(indent),
+        }
+    }
 }
 
 impl SyntaxChild {
@@ -97,6 +131,25 @@ pub struct SyntaxNode {
     pub children: Vec<SyntaxChild>,
 }
 
+impl SyntaxDisplay for SyntaxNode {
+    fn fmt(&self, indent: usize) -> Vec<SyntaxDisplayLine> {
+        let mut lines = Vec::new();
+
+        let self_node = SyntaxDisplayLine {
+            indent,
+            text: self.name.clone(),
+        };
+
+        lines.push(self_node);
+
+        for each_child in &self.children {
+            lines.append(&mut each_child.fmt(indent + 1));
+        }
+
+        lines
+    }
+}
+
 impl SyntaxNode {
     pub fn new(name: String, children: Vec<SyntaxChild>) -> SyntaxNode {
         SyntaxNode {
@@ -112,6 +165,17 @@ pub struct SyntaxLeaf {
     pub value: String,
 }
 
+impl SyntaxDisplay for SyntaxLeaf {
+    fn fmt(&self, indent: usize) -> Vec<SyntaxDisplayLine> {
+        vec![
+            SyntaxDisplayLine {
+                indent,
+                text: self.value.clone(),
+            },
+        ]
+    }
+}
+
 impl SyntaxLeaf {
     pub fn new(start: InputPosition, value: String) -> SyntaxLeaf {
         SyntaxLeaf {
@@ -125,6 +189,25 @@ impl SyntaxLeaf {
 pub struct SyntaxError {
     pub message: String,
     pub children: Vec<SyntaxChild>,
+}
+
+impl SyntaxDisplay for SyntaxError {
+    fn fmt(&self, indent: usize) -> Vec<SyntaxDisplayLine> {
+        let mut lines = Vec::new();
+
+        let self_node = SyntaxDisplayLine {
+            indent,
+            text: format!("[ERR] {}", self.message.clone()),
+        };
+
+        lines.push(self_node);
+
+        for each_child in &self.children {
+            lines.append(&mut each_child.fmt(indent + 1));
+        }
+
+        lines
+    }
 }
 
 impl SyntaxError {
