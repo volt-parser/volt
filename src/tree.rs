@@ -110,6 +110,30 @@ impl SyntaxChild {
         SyntaxChild::Error(SyntaxError::new(message, children))
     }
 
+    pub fn into_node(&self) -> &SyntaxNode {
+        if let SyntaxChild::Node(node) = self {
+            node
+        } else {
+            unreachable!("expected syntax node");
+        }
+    }
+
+    pub fn into_leaf(&self) -> &SyntaxLeaf {
+        if let SyntaxChild::Leaf(leaf) = self {
+            leaf
+        } else {
+            unreachable!("expected syntax leaf");
+        }
+    }
+
+    pub fn into_error(&self) -> &SyntaxError {
+        if let SyntaxChild::Error(error) = self {
+            error
+        } else {
+            unreachable!("expected syntax error");
+        }
+    }
+
     pub fn join_children(&self) -> String {
         let mut s = String::new();
 
@@ -305,12 +329,26 @@ pub trait SyntaxChildVec {
 
     fn get_child(&self, index: usize) -> &SyntaxChild;
 
+    fn get_child_or_none(&self, index: usize) -> Option<&SyntaxChild>;
+
     // add: search_node()
     fn get_node(&self, index: usize) -> &SyntaxNode;
 
+    fn get_node_or_none(&self, index: usize) -> Option<&SyntaxNode>;
+
     fn get_leaf(&self, index: usize) -> &SyntaxLeaf;
 
+    fn get_leaf_or_none(&self, index: usize) -> Option<&SyntaxLeaf>;
+
     fn get_error(&self, index: usize) -> &SyntaxError;
+
+    fn get_error_or_none(&self, index: usize) -> Option<&SyntaxError>;
+
+    fn find_node(&self, name: &str) -> &SyntaxNode;
+
+    fn find_node_or_none(&self, name: &str) -> Option<&SyntaxNode>;
+
+    fn filter_nodes(&self) -> Vec<&SyntaxNode>;
 }
 
 impl SyntaxChildVec for Vec<SyntaxChild> {
@@ -372,36 +410,97 @@ impl SyntaxChildVec for Vec<SyntaxChild> {
     }
 
     fn get_child(&self, index: usize) -> &SyntaxChild {
-        if let Some(v) = self.get(index) {
-            v
+        if let Some(child) = self.get_child_or_none(index) {
+            child
         } else {
-            panic!("syntax child index is out of range");
+            unreachable!("syntax child index is out of range");
         }
     }
 
-    // add: search_node()
+    fn get_child_or_none(&self, index: usize) -> Option<&SyntaxChild> {
+        self.get(index)
+    }
+
     fn get_node(&self, index: usize) -> &SyntaxNode {
-        if let SyntaxChild::Node(node) = self.get_child(index) {
+        if let Some(node) = self.get_node_or_none(index) {
             node
         } else {
-            panic!("expected syntax node");
+            unreachable!("expected syntax node");
         }
     }
 
+    fn get_node_or_none(&self, index: usize) -> Option<&SyntaxNode> {
+        if let Some(SyntaxChild::Node(node)) = self.get_child_or_none(index) {
+            Some(node)
+        } else {
+            None
+        }
+    }
+
+    // add: find_leaf()
+    // add: filter_leaf()
     fn get_leaf(&self, index: usize) -> &SyntaxLeaf {
-        if let SyntaxChild::Leaf(leaf) = self.get_child(index) {
+        if let Some(leaf) = self.get_leaf_or_none(index) {
             leaf
         } else {
-            panic!("expected syntax leaf");
+            unreachable!("expected syntax leaf");
         }
     }
 
-    // add: search_error()
+    fn get_leaf_or_none(&self, index: usize) -> Option<&SyntaxLeaf> {
+        if let Some(SyntaxChild::Leaf(leaf)) = self.get_child_or_none(index) {
+            Some(leaf)
+        } else {
+            None
+        }
+    }
+
+    // add: find_error()
+    // add: filter_error()
     fn get_error(&self, index: usize) -> &SyntaxError {
-        if let SyntaxChild::Error(error) = self.get_child(index) {
+        if let Some(error) = self.get_error_or_none(index) {
             error
         } else {
-            panic!("expected syntax error");
+            unreachable!("expected syntax error");
         }
+    }
+
+    fn get_error_or_none(&self, index: usize) -> Option<&SyntaxError> {
+        if let Some(SyntaxChild::Error(error)) = self.get_child_or_none(index) {
+            Some(error)
+        } else {
+            None
+        }
+    }
+
+    fn find_node(&self, name: &str) -> &SyntaxNode {
+        if let Some(node) = self.find_node_or_none(name) {
+            node
+        } else {
+            unreachable!("unknown syntax node name");
+        }
+    }
+
+    fn find_node_or_none(&self, name: &str) -> Option<&SyntaxNode> {
+        for each_child in self {
+            match each_child {
+                SyntaxChild::Node(node) if node.name == name => return Some(node),
+                _ => (),
+            }
+        }
+
+        None
+    }
+
+    fn filter_nodes(&self) -> Vec<&SyntaxNode> {
+        let mut nodes = Vec::new();
+
+        for each_child in self {
+            if let SyntaxChild::Node(node) = each_child {
+                nodes.push(node);
+            }
+        }
+
+        nodes
     }
 }
