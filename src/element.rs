@@ -26,35 +26,24 @@ pub enum Element {
 }
 
 impl Element {
+    fn range(self, range: LoopRange) -> Element {
+        Element::Loop(Box::new(self), range)
+    }
+
     pub fn times(self, n: usize) -> Element {
         self.min_max(n, n)
     }
 
     pub fn min_max(self, min: usize, max: usize) -> Element {
-        let range = LoopRange {
-            min,
-            max: Maxable::Max(max),
-        };
-
-        Element::Loop(Box::new(self), range)
+        self.range(LoopRange::min_max(min, max))
     }
 
     pub fn min(self, min: usize) -> Element {
-        let range = LoopRange {
-            min,
-            max: Maxable::NoLimit,
-        };
-
-        Element::Loop(Box::new(self), range)
+        self.range(LoopRange::min(min))
     }
 
     pub fn max(self, max: usize) -> Element {
-        let range = LoopRange {
-            min: 0,
-            max: Maxable::Max(max),
-        };
-
-        Element::Loop(Box::new(self), range)
+        self.range(LoopRange::max(max))
     }
 
     pub fn optional(self) -> Element {
@@ -111,6 +100,10 @@ impl Element {
 
     pub fn separate(self, separator: Element) -> Element {
         seq![self.clone(), seq![separator.clone(), self].min(0), separator.optional()]
+    }
+
+    pub fn separate_times(self, separator: Element, loop_range: LoopRange) -> Element {
+        seq![self.clone(), seq![separator.clone(), self].range(loop_range), separator.optional()]
     }
 
     pub fn separate_around(self, separator: Element) -> Element {
@@ -176,13 +169,13 @@ impl Display for Expression {
     }
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub enum Maxable {
     Max(usize),
     NoLimit,
 }
 
-#[derive(Clone)]
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct LoopRange {
     pub min: usize,
     pub max: Maxable,
@@ -213,6 +206,31 @@ impl Display for LoopRange {
 }
 
 impl LoopRange {
+    pub fn times(n: usize) -> LoopRange {
+        LoopRange::min_max(n, n)
+    }
+
+    pub fn min_max(min: usize, max: usize) -> LoopRange {
+        LoopRange {
+            min,
+            max: Maxable::Max(max),
+        }
+    }
+
+    pub fn min(min: usize) -> LoopRange {
+        LoopRange {
+            min,
+            max: Maxable::NoLimit,
+        }
+    }
+
+    pub fn max(max: usize) -> LoopRange {
+        LoopRange {
+            min: 0,
+            max: Maxable::Max(max),
+        }
+    }
+
     pub fn is_single_times(&self) -> bool {
         self.min == 1 && self.max == Maxable::Max(1)
     }
