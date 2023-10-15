@@ -194,7 +194,7 @@ impl SyntaxDisplay for SyntaxLeaf {
         vec![
             SyntaxDisplayLine {
                 indent,
-                text: self.value.clone(),
+                text: format!("\"{}\"", self.value),
             },
         ]
     }

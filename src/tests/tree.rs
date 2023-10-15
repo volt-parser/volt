@@ -24,10 +24,10 @@ speculate!{
             let right = vec![
                 "root",
                 "  node",
-                "    leaf",
-                "  leaf",
+                "    \"leaf\"",
+                "  \"leaf\"",
                 "  [ERR] error",
-                "    leaf",
+                "    \"leaf\"",
             ].iter().map(|v| v.to_string()).collect::<Vec<String>>().join("\n");
 
             assert_eq!(left, right);
