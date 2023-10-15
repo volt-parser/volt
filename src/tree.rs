@@ -477,7 +477,7 @@ impl SyntaxChildVec for Vec<SyntaxChild> {
         if let Some(node) = self.find_node_or_none(name) {
             node
         } else {
-            unreachable!("unknown syntax node name");
+            unreachable!("unknown syntax node name `{}`", name);
         }
     }
 
